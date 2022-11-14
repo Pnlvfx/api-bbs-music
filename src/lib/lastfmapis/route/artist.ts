@@ -1,6 +1,8 @@
 import { catchError } from "../../../lib/common";
 import lastfmapis from "../lastfmapis";
 import config from '../../../config/config';
+import { FmTrack } from "../types/FMtrack";
+import { FMartistSearch } from "../types/FMartist";
 
 const artist = {
     getInfo: async () => {
@@ -22,11 +24,10 @@ const artist = {
                 method: 'GET'
             });
             const data = await res.json();
-            if (!res.ok) throw new Error('error for now')
-            console.log(data);
-            return data;
+            if (!res.ok) throw new Error('Something went wrong, please try again!')
+            return data.results.artistmatches.artist as FMartistSearch[];
         } catch (err) {
-            catchError(err);
+            throw catchError(err);
         }
     }
 }

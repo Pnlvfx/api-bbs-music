@@ -4,16 +4,10 @@ import config from '../../../config/config';
 import { SongProps, YDdownload } from "../../../models/types/song";
 import Song from "../../../models/Song";
 import { Types } from "mongoose";
-import Artist from "../../../models/Artist";
-import artist from "../artist-hooks/artist";
 
 export const createTrack = async (song: YDdownload) => {
     const url = `${config.SERVER_URL}/music/${song.videoId}.mp3`;
     const duration = await getAudioDurationInSeconds(song.file);
-    const exists = await Artist.exists({name: song.artist});
-    if (!exists) {
-        const newArtist = await artist.new(song.artist);
-    }
     const track = new Song({
         id: song.videoId,
         url,
@@ -22,7 +16,7 @@ export const createTrack = async (song: YDdownload) => {
         duration,
         title: song.title,
         artist: song.artist,
-        album: '',
+        album: song.info?.album,
         description: '',
         genre: '',
         date: '',
@@ -44,7 +38,7 @@ const music = {
                 _id: Types.ObjectId
             };
         } catch (err) {
-            catchError(err);
+            throw catchError(err);
         }
     }
 }

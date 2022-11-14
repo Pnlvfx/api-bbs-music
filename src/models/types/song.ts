@@ -1,4 +1,4 @@
-import { Document } from "mongoose"
+import { FMTrackInfo } from "../../lib/lastfmapis/types/FMtrackInfo"
 
 export interface YDdownload {
     videoId: string
@@ -9,9 +9,10 @@ export interface YDdownload {
     artist: string
     title: string
     thumbnail: string
+    info: FMTrackInfo
 }
 
-export interface SongProps extends Document {
+export interface SongProps {
     id: string
     url: string
     type: string

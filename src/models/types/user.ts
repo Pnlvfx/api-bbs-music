@@ -6,7 +6,7 @@ export interface IUser extends Document {
     password: string
     role: number
     avatar: string
-    liked_songs: [Types.ObjectId]
+    liked_songs: Types.ObjectId[]
     country: string
     countryCode: string
     city: string

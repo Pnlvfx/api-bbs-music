@@ -1,4 +1,12 @@
 {
+  "author": "Zoe94",
+  "name":"api-bbs_music",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": "18.x.x"
+  },
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

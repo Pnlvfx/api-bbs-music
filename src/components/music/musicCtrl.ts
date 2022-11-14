@@ -1,70 +1,77 @@
-import { Request, Response } from "express";
-import puppeteer from 'puppeteer';
-import { YDdownload } from "../../models/types/song";
-import YoutubeMp3Downloader from "youtube-mp3-downloader";
-import coraline from "../../database/coraline";
+import { Request, response, Response } from "express";
 import { catchErrorCtrl } from "../../lib/common";
 import Song from "../../models/Song";
 import fs from 'fs';
-import music from "./music-hooks/music";
 import lastfmapis from "../../lib/lastfmapis/lastfmapis";
-
+import { SearchResult } from "../../types/search";
+import youtubeapis from "../../lib/youtubeapis/youtubeapis";
+import { UserRequest } from "../../@types/express";
+import { Types } from "mongoose";
+import { SongProps } from "src/models/types/song";
 
 const musicCtrl = {
-    search: async (req: Request, res: Response) => {
+    search: async (userRequest: Request, res: Response) => {
         try {
+            const req = userRequest as UserRequest;
+            const {user} = req;
             const { text } = req.query;
             if (!text) return res.status(400).json({msg: 'Missing required params: "text"'})
-            //const artists = await lastfmapis.artist.search(text.toString());
             const songs = await lastfmapis.track.search(text.toString());
-            res.status(200).json({songs});
+            //const artists = await lastfmapis.artist.search(text.toString());
+            let response1: SearchResult[] = [];
+            await Promise.all(
+                songs.map(async (song) => {
+                    const dbSong = await Song.findOne({title: song.name});
+                    const obj: SearchResult & {_id: Types.ObjectId | ''} = {
+                        artist: dbSong ? dbSong.artist : song.artist,
+                        artwork: dbSong ? dbSong.artwork : song.image[0]["#text"],
+                        content_type: 'audio/mp3',
+                        duration: dbSong ? dbSong.duration : 0,
+                        file: dbSong ? dbSong.file : '',
+                        id: dbSong ? dbSong.id : '',
+                        isSaved: dbSong ? true : false,
+                        title: dbSong ? dbSong.title : song.name,
+                        type: 'default',
+                        url: dbSong ? dbSong.url : '',
+                        album: '',
+                        date: '',
+                        description: '',
+                        genre: '',
+                        _id: dbSong ? dbSong._id : ''
+                    }
+                    response1.push(obj);
+                })
+            )
+            res.status(200).json({songs: response1});
+        } catch (err) {
+            throw catchErrorCtrl(err, res);
+        }
+    },
+    addNextSong: async (req: Request, res: Response) => {
+        try {
+            const getRandomInt = (max: number) => {
+                return Math.floor(Math.random() * max);
+            }
+            const {artist, track} = req.body;
+            if (!artist || !track) return res.status(400).json({msg: 'Missing required parameters'});
+            const similar = await lastfmapis.track.getSimilar(artist, track);
+            if (similar.length === 0) {
+                return res.status(400).json(); //transform to 200
+            }
+            const index = getRandomInt(similar.length);
+            const song = similar[index];
+            const dbSong = await Song.findOne({title: song.name});
+            const savedSong = dbSong ? dbSong : await youtubeapis.downloadSong(song.artist.name, song.name);
+            res.status(200).json(savedSong);
         } catch (err) {
             catchErrorCtrl(err, res);
         }
     },
     downloadMusic: async (req: Request, res: Response) => {
         try {
-            const {artist, song: req_song} = req.body;
-            const t = `${artist}${' '}${req_song}`;
-            const text = t.replaceAll(' ', '+');
-            const browser = await puppeteer.launch({
-                args: ['--no-sandbox', '--disabled-setupid-sandbox']
-            });
-            const page = await browser.newPage();
-            page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36');
-            const searchUrl = `https://www.youtube.com/results?search_query=${text}`;
-            await page.goto(searchUrl);
-            const url = await page.evaluate(() => {
-                const doc = document.querySelector('#video-title') as HTMLAnchorElement;
-                return doc.href;
-            })
-            await browser.close()
-            const path = coraline.use('music');
-            const id = url.split('v=')[1];
-            const exists = await Song.exists({id});
-            if (exists) return res.status(400).json({msg: 'This song is already in our database!'});
-            const YD = new YoutubeMp3Downloader({
-                outputPath: path,
-                youtubeVideoQuality: 'highestaudio',
-                "queueParallelism": 2,
-                "progressTimeout": 2000, 
-                "allowWebm": false
-            });
-            YD.download(id, `${id}.mp3`);
-            YD.on('finished', async (err, data: YDdownload) => {
-                data.title = req_song;
-                data.artist = artist;
-                await music.saveMusic(data);
-                const song = await Song.findOne({id: data.videoId});
-                res.status(200).json(song);
-            });
-            YD.on('error', (error) => {
-                console.log(error);
-            })
-            YD.on('progress', (progress) => {
-                console.log(JSON.stringify(progress));
-            });
-
+            const {artist, song} = req.body;
+            const savedSong = await youtubeapis.downloadSong(artist, song);
+            res.status(201).json(savedSong);
         } catch (err) {
             catchErrorCtrl(err, res);
         }
@@ -86,14 +93,43 @@ const musicCtrl = {
             catchErrorCtrl(err, res);
         }
     },
-    songs: async (req: Request, res: Response) => {
+    liked_songs: async (userRequest: Request, res: Response) => {
         try {
-            const songs = await Song.find({}).sort({createdAt: -1});
-            res.status(200).json(songs);
+            const req = userRequest as UserRequest;
+            const {user} = req;
+            let response: SongProps[] = [];
+            await Promise.all(
+                user.liked_songs.map(async (liked) => {
+                    const song = await Song.findOne({_id: liked});
+                    response.push(song);
+                })
+            )
+            console.log(response);
+            res.status(200).json(response);
         } catch (err) {
             catchErrorCtrl(err, res);
         }
     },
+    like: async (userRequest: Request, res: Response) => {
+        try {
+            const req = userRequest as UserRequest;
+            let {_id} = req.body;
+            if (!_id) return res.status(400).json({msg: 'Missing required params: _id'})
+            const {user} = req;
+            const exists = user.liked_songs.find((liked) => liked.toString() === _id);
+            if (exists) {
+                const filter = user.liked_songs.filter(liked => liked !== exists);
+                user.liked_songs = filter;
+            } else {
+
+                user.liked_songs.push(_id);
+            }
+            await user.save();
+            res.status(200).json(true);
+        } catch (err) {
+            catchErrorCtrl(err, res);
+        }
+    }
 }
 
 export default musicCtrl;

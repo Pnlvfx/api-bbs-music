@@ -5,6 +5,7 @@ import config from './config/config';
 import oauthRouter from './components/oauth/oauthRouter';
 import musicRouter from './components/music/musicRouter';
 import userRouter from './components/user/userRouter';
+import auth from './middleware/auth';
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.get('/', (req, res) => {
 app.use('/', oauthRouter);
 
 app.use('/user', userRouter);
+
+app.use(auth);
 
 app.use('/music', musicRouter);
 
