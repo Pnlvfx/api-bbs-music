@@ -3,7 +3,7 @@ import musicCtrl from "./musicCtrl";
 
 const musicRouter = express.Router();
 
-musicRouter.get('/liked_tracks', musicCtrl.liked_tracks);
+musicRouter.get('/liked', musicCtrl.liked_tracks);
 
 musicRouter.get('/search', musicCtrl.search);
 

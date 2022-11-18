@@ -27,4 +27,5 @@ export interface TrackProps {
   artwork: string;
   file: string;
   liked: boolean;
+  is_saved: boolean;
 }

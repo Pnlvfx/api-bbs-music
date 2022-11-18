@@ -1,9 +1,8 @@
 import getAudioDurationInSeconds from "get-audio-duration";
 import { catchError } from "../../../lib/common";
 import config from '../../../config/config';
-import { TrackProps, YDdownload } from "../../../models/types/track";
+import { YDdownload } from "../../../models/types/track";
 import Track from "../../../models/Track";
-import { Types } from "mongoose";
 
 export const createTrack = async (song: YDdownload) => {
     const url = `${config.SERVER_URL}/music/${song.videoId}.mp3`;
@@ -21,12 +20,11 @@ export const createTrack = async (song: YDdownload) => {
         genre: '',
         date: '',
         artwork: song.thumbnail,
-        file: song.file
+        file: song.file,
+        is_saved: true
     });
     await track.save();
-    return track as TrackProps & {
-        _id: Types.ObjectId
-    };
+    return track;
 
 }
 
@@ -34,9 +32,7 @@ const music = {
     saveMusic: async (song: YDdownload) => {
         try {
             const track = await createTrack(song);
-            return track as TrackProps & {
-                _id: Types.ObjectId
-            };
+            return track;
         } catch (err) {
             throw catchError(err);
         }

@@ -51,6 +51,10 @@ const TrackSchema = new Schema<TrackProps>({
         type: String,
         required: true
     },
+    is_saved: {
+        type: Boolean,
+        default: true
+    }
 }, {
     timestamps: true
 });

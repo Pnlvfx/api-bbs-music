@@ -6,11 +6,14 @@ import { TrackProps, YDdownload } from "../../models/types/track";
 import music from "../../components/music/music-hooks/music";
 import YoutubeMp3Downloader from "youtube-mp3-downloader";
 import lastfmapis from "../lastfmapis/lastfmapis";
+import { Document, Types } from "mongoose";
 
 const youtubeapis = {
     downloadTrack: async (artist: string, track: string) => {
         try {
-            return new Promise<TrackProps>(async (resolve, reject) => {
+            return new Promise<Document<unknown, any, TrackProps> & TrackProps & {
+                _id: Types.ObjectId;
+            }>(async (resolve, reject) => {
                 const t = `${artist.replaceAll('&', '')}${' '}${track.replaceAll('&', '')}`;
                 const text = t.replaceAll(' ', '+');
                 const browser = await puppeteer.launch({
@@ -20,18 +23,19 @@ const youtubeapis = {
                 await page.waitForNetworkIdle();
                 await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36');
                 const searchUrl = `https://www.youtube.com/results?search_query=${text}`;
+                console.log({searchUrl});
                 await page.goto(searchUrl);
                 const url = await page.evaluate(() => {
                     const doc = document.querySelector('#video-title') as HTMLAnchorElement;
                     return doc.href;
                 });
+                console.log(url);
                 await browser.close();
                 const path = coraline.use('music');
                 const id = url.split('v=')[1];
-                const existsing = await Track.findOne({id});
-                if (existsing) {
-                    return resolve(existsing);
-                }
+                const existing = await Track.findOne({id});
+                console.log({existing});
+                if (existing) return resolve(existing);
                 const YD = new YoutubeMp3Downloader({
                     outputPath: path,
                     youtubeVideoQuality: 'highestaudio',

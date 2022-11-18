@@ -8,6 +8,7 @@ import userRouter from './components/user/userRouter';
 import auth from './middleware/auth';
 import coraline from './database/coraline';
 import videoRouter from './components/video/videoRouter';
+import lastPlayed from './middleware/lastPlayed';
 
 const app = express();
 
@@ -38,6 +39,6 @@ app.use(auth);
 
 app.use('/music', musicRouter);
 
-app.use('/music', express.static(path))
+app.use('/music', lastPlayed, express.static(path));
 
 app.listen(4000);

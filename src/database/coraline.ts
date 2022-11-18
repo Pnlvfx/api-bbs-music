@@ -13,6 +13,11 @@ const coraline = {
         date.setTime(date.getTime() + numOfHours * 60 * 60 * 1000);
         return date;
     },
+    arrayMove: (arr: any[], fromIndex: number, toIndex: number) => {
+        const element = arr[fromIndex];
+        arr.splice(fromIndex, 1);
+        arr.splice(toIndex, 0, element);
+    },
     getMediaFromUrl: (url: string, public_id: string, type: 'videos' | 'images') => {
         return new Promise<{
             filename: string

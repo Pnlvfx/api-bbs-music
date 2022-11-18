@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { catchErrorCtrl } from "../../lib/common";
 import Track from "../../models/Track";
 import lastfmapis from "../../lib/lastfmapis/lastfmapis";
-import { SearchResult } from "../../types/search";
 import youtubeapis from "../../lib/youtubeapis/youtubeapis";
 import { UserRequest } from "../../@types/express";
 import { Types } from "mongoose";
@@ -18,18 +17,18 @@ const musicCtrl = {
         return res.status(400).json({ msg: 'Missing required params: "text"' });
       const tracks = await lastfmapis.track.search(text.toString());
       //const artists = await lastfmapis.artist.search(text.toString());
-      let response1: SearchResult[] = [];
+      let response1: TrackProps[] = [];
       await Promise.all(
         tracks.map(async (track) => {
           const dbTrack = await Track.findOne({ title: track.name });
-          const obj: SearchResult & { _id: Types.ObjectId | "" } = {
+          const obj: TrackProps & { _id: Types.ObjectId | "" } = {
             artist: dbTrack ? dbTrack.artist : track.artist,
             artwork: dbTrack ? dbTrack.artwork : track.image[0]["#text"],
             content_type: "audio/mp3",
             duration: dbTrack ? dbTrack.duration : 0,
             file: dbTrack ? dbTrack.file : "",
             id: dbTrack ? dbTrack.id : "",
-            isSaved: dbTrack ? true : false,
+            is_saved: dbTrack ? true : false,
             title: dbTrack ? dbTrack.title : track.name,
             type: "default",
             url: dbTrack ? dbTrack.url : "",
@@ -43,16 +42,17 @@ const musicCtrl = {
           response1.push(obj);
         })
       );
-      res.status(200).json({ songs: response1 });
+      res.status(200).json({ tracks: response1 });
     } catch (err) {
       throw catchErrorCtrl(err, res);
     }
   },
-  addNextTrack: async (req: Request, res: Response) => {
+  addNextTrack: async (userRequest: Request, res: Response) => {
     try {
       const getRandomInt = (max: number) => {
         return Math.floor(Math.random() * max);
       };
+      const req = userRequest as UserRequest;
       const { artist, track } = req.body;
       if (!artist || !track)
         return res.status(400).json({ msg: "Missing required parameters" });
@@ -76,10 +76,12 @@ const musicCtrl = {
       catchErrorCtrl(err, res);
     }
   },
-  downloadMusic: async (req: Request, res: Response) => {
+  downloadMusic: async (userRequest: Request, res: Response) => {
     try {
+      const req = userRequest as UserRequest;
       const { artist, track } = req.body;
-      const savedTrack = await youtubeapis.downloadTrack(artist, track);
+      if (!artist || !track) return res.status(400).json({msg: 'Missing required body params!'});
+      const savedTrack = await youtubeapis.downloadTrack(artist, track.toString());
       res.status(201).json(savedTrack);
     } catch (err) {
       console.log(err);
@@ -92,8 +94,8 @@ const musicCtrl = {
       const { user } = req;
       let response: TrackProps[] = [];
       await Promise.all(
-        user.liked_tracks.map(async (liked) => {
-          const track = await Track.findOne({ _id: liked });
+        user.liked_tracks.map(async (likedId) => {
+          const track = await Track.findOne({ _id: likedId });
           if (!track) return;
           response.push(track);
         })

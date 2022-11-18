@@ -32,6 +32,9 @@ const UserSchema = new Schema<IUser>({
     last_search: {
         type: [Schema.Types.ObjectId]
     },
+    last_played: {
+        type: [Schema.Types.ObjectId]
+    },
     country: {
         type: String,
     },
