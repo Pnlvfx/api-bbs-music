@@ -1,3 +1,4 @@
 dist
 node_modules
 cert
+config.env

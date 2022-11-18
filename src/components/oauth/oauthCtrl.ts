@@ -4,8 +4,56 @@ import bcrypt from 'bcrypt';
 import User from '../../models/User';
 import { catchErrorCtrl } from "../../lib/common";
 import jwt from 'jsonwebtoken';
+import userapis from "../../lib/userapis";
 
 const oauthCtrl = {
+    register: async (req: Request, res: Response) => {
+        try {
+            const {email, username, password} = req.body;
+            if (!username || !email || !password) return res.status(400).json({msg: "Please fill in all fields"});
+            if (!userapis.validateEmail(email)) return res.status(400).json({msg: "Not a valid email address"});
+            const existingEmail = await User.findOne({email})
+            if(existingEmail) return res.status(400).json({msg: "This email already exist!"});
+            if(password.length < 8) return res.status(400).json({msg: "Password must be at least 8 characters long."});
+            const existingUser = await User.findOne({username})
+            if (existingUser) return res.status(400).json( {msg: "This username already exist!"});
+            const passwordHash = bcrypt.hashSync(password, 10);
+            const userIPInfo = await userapis.getIP();
+            const {country, countryCode, city, region, lat, lon} = userIPInfo;
+            const user = new User({
+                email,
+                username,
+                password: passwordHash,
+                country,
+                countryCode,
+                city,
+                region,
+                lat,
+                lon
+            });
+            await user.save();
+            const token = jwt.sign({id: user._id}, config.SECRET);
+            const maxAge = 63072000000
+            let cookieOptions: CookieOptions = {
+                httpOnly: true,
+                maxAge,
+            }
+            if (config.NODE_ENV === 'production') {
+                cookieOptions.domain = config.COOKIE_DOMAIN
+                cookieOptions.secure = true
+            }
+            res.cookie('token', token, cookieOptions).json({
+                msg: 'Successfully logged in!',
+                user: {
+                    username: user.username,
+                    avatar: user.avatar,
+                    role: user.role
+                }
+            });
+        } catch (err) {
+            throw catchErrorCtrl(err, res);
+        }
+    },
     logout: async (req: Request, res: Response) => {
         try {
             res.clearCookie('token',{

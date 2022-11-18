@@ -1,7 +1,7 @@
 import {Schema, model} from "mongoose";
-import { SongProps } from "./types/song";
+import { TrackProps } from "./types/track";
 
-const SongSchema = new Schema<SongProps>({
+const TrackSchema = new Schema<TrackProps>({
     id: {
         type: String,
         required: true,
@@ -54,6 +54,7 @@ const SongSchema = new Schema<SongProps>({
 }, {
     timestamps: true
 });
-const Song = model('Song', SongSchema);
 
-export default Song;
+const Track = model('Track', TrackSchema);
+
+export default Track;

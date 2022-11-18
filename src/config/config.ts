@@ -11,6 +11,8 @@ interface ENV {
    SERVER_URL: string | undefined
    LASTFM_API_KEY: string | undefined
    LASTFM_API_SECRET: string | undefined
+   IP_LOOKUP_API_KEY: string | undefined
+   COOKIE_DOMAIN: string | undefined
 }
 
 interface Config {
@@ -21,6 +23,8 @@ interface Config {
     SERVER_URL: string
     LASTFM_API_KEY: string
     LASTFM_API_SECRET: string
+    IP_LOOKUP_API_KEY: string
+    COOKIE_DOMAIN: string
 }
 
 const getConfig = (): ENV => {
@@ -32,6 +36,8 @@ const getConfig = (): ENV => {
         SERVER_URL: process.env.SERVER_URL,
         LASTFM_API_KEY: process.env.LASTFM_API_KEY,
         LASTFM_API_SECRET: process.env.LASTFM_API_SECRET,
+        IP_LOOKUP_API_KEY: process.env.IP_LOOKUP_API_KEY,
+        COOKIE_DOMAIN: process.env.COOKIE_DOMAIN,
     }
 }
 

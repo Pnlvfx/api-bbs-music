@@ -26,12 +26,12 @@ const coraline = {
                 const fileStream = fs.createWriteStream(filename);
                 res.pipe(fileStream);
                 fileStream.on('error', (err) => {
-                    reject(err);
+                    return reject(err);
                 })
                 fileStream.on('finish', () => {
                     fileStream.close();
                     const res = {filename, url};
-                    resolve(res);
+                    return resolve(res);
                 })
             })
         })

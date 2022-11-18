@@ -3,6 +3,8 @@ import oauthCtrl from "./oauthCtrl";
 
 const oauthRouter = Router();
 
+oauthRouter.post('/register', oauthCtrl.register);
+
 oauthRouter.post('/google_login', oauthCtrl.googleLogin);
 
 oauthRouter.post('/logout', oauthCtrl.logout);

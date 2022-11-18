@@ -1,9 +1,9 @@
 import { Document } from "mongoose";
-import { SongProps } from "./song";
+import { TrackProps } from "./track";
 
 export interface ArtistProps extends Document {
     name: string
     albums: []
-    songs: SongProps[]
+    tracks: TrackProps[]
     thumbnail: string
 }

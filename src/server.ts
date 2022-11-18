@@ -6,12 +6,17 @@ import oauthRouter from './components/oauth/oauthRouter';
 import musicRouter from './components/music/musicRouter';
 import userRouter from './components/user/userRouter';
 import auth from './middleware/auth';
+import coraline from './database/coraline';
+import videoRouter from './components/video/videoRouter';
 
 const app = express();
 
 app.use(cookieParser());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json({limit: '50mb'}));
+
+const path = coraline.use('music');
+const imagesPath = coraline.use('images');
 
 connect(config.MONGO_URI).then(() => {
     console.log("Successfully connected to bbs-music database!")
@@ -21,6 +26,10 @@ app.get('/', (req, res) => {
     res.send('http server')
 })
 
+app.use('/images/icons', express.static(`${imagesPath}/icons`));
+
+app.use('/video', videoRouter);
+
 app.use('/', oauthRouter);
 
 app.use('/user', userRouter);
@@ -28,5 +37,7 @@ app.use('/user', userRouter);
 app.use(auth);
 
 app.use('/music', musicRouter);
+
+app.use('/music', express.static(path))
 
 app.listen(4000);

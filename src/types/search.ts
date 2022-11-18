@@ -1,5 +1,6 @@
-import { SongProps } from "../models/types/song";
+import { TrackProps } from "../models/types/track";
 
-export interface SearchResult extends SongProps {
+
+export interface SearchResult extends TrackProps {
     isSaved: boolean
 }

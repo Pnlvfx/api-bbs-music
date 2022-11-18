@@ -1,4 +1,4 @@
-import {Schema, model, Types} from "mongoose";
+import {Schema, model} from "mongoose";
 import { IUser } from "./types/user";
 
 const UserSchema = new Schema<IUser>({
@@ -26,7 +26,10 @@ const UserSchema = new Schema<IUser>({
         type: String,
         default: "https://api.bbabystyle.com/images/icons/undi.png"
     },
-    liked_songs: {
+    liked_tracks: {
+        type: [Schema.Types.ObjectId]
+    },
+    last_search: {
         type: [Schema.Types.ObjectId]
     },
     country: {

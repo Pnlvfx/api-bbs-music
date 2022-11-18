@@ -9,8 +9,14 @@ const auth = async (userRequest: Request, res: Response, next: NextFunction) => 
         const {token} = req.cookies;
         if (!token) return res.status(401).json({msg: 'This API require user authentication'});
         const user = await getUserFromToken(token);
-        req.user = user;
-        next();
+        if (!user) {
+            res.clearCookie('token',{
+                httpOnly: true,
+            }).json(null);
+        } else {
+            req.user = user;
+            next();
+        };
     } catch (err) {
         throw catchErrorCtrl(err, res);
     }

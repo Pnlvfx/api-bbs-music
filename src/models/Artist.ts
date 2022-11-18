@@ -9,7 +9,7 @@ const ArtistSchema = new Schema<ArtistProps>({
     albums: {
 
     },
-    songs: {
+    tracks: {
         
     },
     thumbnail: {
