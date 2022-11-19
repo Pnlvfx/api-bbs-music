@@ -1,61 +1,72 @@
-import {Schema, model} from "mongoose";
+import { Schema, model } from "mongoose";
 import { IUser } from "./types/user";
 
-const UserSchema = new Schema<IUser>({
+const arrayLimit = (val: []) => {
+  return val.length <= 50;
+};
+
+const UserSchema = new Schema<IUser>(
+  {
     email: {
-        type: String,
-        unique: true,
-        required: [true, "Please enter your email!"],
-        trim: true,
+      type: String,
+      unique: true,
+      required: [true, "Please enter your email!"],
+      trim: true,
     },
     username: {
-        type:String,
-        unique:true,
-        required:[true, "can't be blank"],
-        trim: true
+      type: String,
+      unique: true,
+      required: [true, "can't be blank"],
+      trim: true,
     },
     password: {
-        type:String,
-        required:true
+      type: String,
+      required: true,
     },
     role: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
     avatar: {
-        type: String,
-        default: "https://api.bbabystyle.com/images/icons/undi.png"
+      type: String,
+      default: "https://api.bbabystyle.com/images/icons/undi.png",
     },
     liked_tracks: {
-        type: [Schema.Types.ObjectId]
+      type: [Schema.Types.ObjectId],
     },
     last_search: {
-        type: [Schema.Types.ObjectId]
+      type: [Schema.Types.ObjectId],
+      validate: [arrayLimit, "Last search execeds the limit of 10"],
+      unique: true,
     },
     last_played: {
-        type: [Schema.Types.ObjectId]
+      type: [Schema.Types.ObjectId],
+      validate: [arrayLimit, "Last search execeds the limit of 10"],
+      unique: true,
     },
     country: {
-        type: String,
+      type: String,
     },
     countryCode: {
-        type: String,
+      type: String,
     },
     city: {
-        type: String,
+      type: String,
     },
     region: {
-        type: String,
+      type: String,
     },
     lat: {
-        type: String,
+      type: String,
     },
     lon: {
-        type: String,
+      type: String,
     },
-}, {
-    timestamps: true
-});
-const User = model('User', UserSchema);
+  },
+  {
+    timestamps: true,
+  }
+);
+const User = model("User", UserSchema);
 
 export default User;

@@ -6,12 +6,12 @@ import youtubeapis from "../../lib/youtubeapis/youtubeapis";
 import { UserRequest } from "../../@types/express";
 import { Types } from "mongoose";
 import { TrackProps } from "../../models/types/track";
+import coraline from "../../database/coraline";
 
 const musicCtrl = {
   search: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
-      const { user } = req;
       const { text } = req.query;
       if (!text)
         return res.status(400).json({ msg: 'Missing required params: "text"' });
@@ -49,30 +49,21 @@ const musicCtrl = {
   },
   addNextTrack: async (userRequest: Request, res: Response) => {
     try {
-      const getRandomInt = (max: number) => {
-        return Math.floor(Math.random() * max);
-      };
       const req = userRequest as UserRequest;
       const { artist, track } = req.body;
-      if (!artist || !track)
-        return res.status(400).json({ msg: "Missing required parameters" });
+      if (!artist || !track) return res.status(400).json({ msg: "Missing required parameters" });
       const similar = await lastfmapis.track.getSimilar(artist, track);
       if (similar.length === 0) {
-        const simil = await Track.findOne({ artist: artist });
-        if (!simil) {
-          return res.status(400).json({ msg: "Cannot fint similar tracks" });
-        } else {
-          return res.status(200).json(simil);
-        }
+        console.log("FM API does not find similar song!");
+        return res.status(400).json({ msg: "Cannot fint similar tracks" });
       }
-      const index = getRandomInt(similar.length);
+      const index = coraline.getRandomInt(similar.length);
       const song = similar[index];
       const dbSong = await Track.findOne({ title: song.name });
-      const savedSong = dbSong
-        ? dbSong
-        : await youtubeapis.downloadTrack(song.artist.name, song.name);
+      const savedSong = dbSong ? dbSong : await youtubeapis.downloadTrack(song.artist.name, song.name);
       res.status(200).json(savedSong);
     } catch (err) {
+      console.log(err, 'catched');
       catchErrorCtrl(err, res);
     }
   },
@@ -80,8 +71,12 @@ const musicCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { artist, track } = req.body;
-      if (!artist || !track) return res.status(400).json({msg: 'Missing required body params!'});
-      const savedTrack = await youtubeapis.downloadTrack(artist, track.toString());
+      if (!artist || !track)
+        return res.status(400).json({ msg: "Missing required body params!" });
+      const savedTrack = await youtubeapis.downloadTrack(
+        artist,
+        track.toString()
+      );
       res.status(201).json(savedTrack);
     } catch (err) {
       console.log(err);
@@ -109,10 +104,11 @@ const musicCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { _id } = req.body;
-      if (!_id)
-        return res.status(400).json({ msg: "Missing required params: _id" });
+      if (!_id) return res.status(400).json({ msg: "Missing required params: _id" });
       const { user } = req;
-      const exists = user.liked_tracks.find((liked) => liked.toString() === _id);
+      const exists = user.liked_tracks.find(
+        (liked) => liked.toString() === _id
+      );
       if (exists) {
         const filter = user.liked_tracks.filter((liked) => liked !== exists);
         user.liked_tracks = filter;

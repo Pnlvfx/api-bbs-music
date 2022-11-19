@@ -1,9 +1,10 @@
 import { catchError } from "../../../lib/common";
 import lastfmapis from "../lastfmapis";
 import config from '../../../config/config';
-import { FMtrackProps } from "../types/FMtrack";
+import { FmTrack, FMtrackProps } from "../types/FMtrack";
 import { FMSimilar } from "../types/FMsimilartrack";
 import { FMTrackInfo } from "../types/FMtrackInfo";
+import coraline from "../../../database/coraline";
 
 const track = {
     search: async (text: string) => {

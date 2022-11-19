@@ -27,8 +27,10 @@ const youtubeapis = {
                 await page.goto(searchUrl);
                 const url = await page.evaluate(() => {
                     const doc = document.querySelector('#video-title') as HTMLAnchorElement;
+                    if (!doc?.href) return null;
                     return doc.href;
                 });
+                if (!url) return reject('Href not found!');
                 console.log(url);
                 await browser.close();
                 const path = coraline.use('music');
@@ -57,7 +59,7 @@ const youtubeapis = {
                     return reject(error);
                 })
                 YD.on('progress', (progress) => {
-                    console.log(JSON.stringify(progress));
+                    //console.log(JSON.stringify(progress));
                 });
             })
         } catch (err) {
