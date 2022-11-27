@@ -7,7 +7,7 @@ musicRouter.get('/liked', musicCtrl.liked_tracks);
 
 musicRouter.get('/search', musicCtrl.search);
 
-musicRouter.post('/get_similar', musicCtrl.addNextTrack);
+musicRouter.get('/get_next', musicCtrl.addNextTrack);
 
 musicRouter.post('/download', musicCtrl.downloadMusic);
 

@@ -10,7 +10,6 @@ const userapis = {
             });
             const userIpInfo = await res.json();
             if (!res.ok) {
-                console.log(res.ok)
                 throw new Error(userIpInfo?.msg);
             } else {
                 return userIpInfo as UserIpInfoProps;

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { Request, Response } from "express";
-import coraline from '../../database/coraline';
+import coraline from '../../coraline/coraline';
+import { catchErrorCtrl } from '../../lib/common';
 
 const videoCtrl = {
     sendVideo : async (req: Request, res: Response) => {
@@ -36,7 +37,7 @@ const videoCtrl = {
                 fs.createReadStream(video).pipe(res);
             }
         } catch (err) {
-            console.log(err);
+            throw catchErrorCtrl(err, res);
         }
     },
 }

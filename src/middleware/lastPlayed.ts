@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Track from "../models/Track";
 import { UserRequest } from "../@types/express";
 import { catchErrorCtrl } from "../lib/common"
-import coraline from "../database/coraline";
+import coraline from "../coraline/coraline";
 
 const lastPlayed = async (userRequest: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,6 +17,9 @@ const lastPlayed = async (userRequest: Request, res: Response, next: NextFunctio
             const index = user.last_played.findIndex((last_p) => last_p.toString() === track._id.toString());
             coraline.arrayMove(user.last_played, index, user.last_played.length);
         } else {
+            if (user.last_played.length >= 50) {
+                user.last_played.shift();
+            }
             user.last_played.push(track._id);
         }
         await user.save();

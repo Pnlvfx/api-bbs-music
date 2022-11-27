@@ -4,9 +4,9 @@ import Track from "../../models/Track";
 import lastfmapis from "../../lib/lastfmapis/lastfmapis";
 import youtubeapis from "../../lib/youtubeapis/youtubeapis";
 import { UserRequest } from "../../@types/express";
-import { Types } from "mongoose";
-import { TrackProps } from "../../models/types/track";
-import coraline from "../../database/coraline";
+import { TrackObject } from "../../models/types/track";
+import trackapis from "../../lib/trackapis/trackapis";
+import coraline from "../../coraline/coraline";
 
 const musicCtrl = {
   search: async (userRequest: Request, res: Response) => {
@@ -17,11 +17,11 @@ const musicCtrl = {
         return res.status(400).json({ msg: 'Missing required params: "text"' });
       const tracks = await lastfmapis.track.search(text.toString());
       //const artists = await lastfmapis.artist.search(text.toString());
-      let response1: TrackProps[] = [];
+      let response1: TrackObject[] = [];
       await Promise.all(
         tracks.map(async (track) => {
           const dbTrack = await Track.findOne({ title: track.name });
-          const obj: TrackProps & { _id: Types.ObjectId | "" } = {
+          const obj: TrackObject = {
             artist: dbTrack ? dbTrack.artist : track.artist,
             artwork: dbTrack ? dbTrack.artwork : track.image[0]["#text"],
             content_type: "audio/mp3",
@@ -36,7 +36,7 @@ const musicCtrl = {
             date: "",
             description: "",
             genre: "",
-            _id: dbTrack ? dbTrack._id : "",
+            _id: dbTrack ? dbTrack._id : undefined,
             liked: false,
           };
           response1.push(obj);
@@ -50,21 +50,20 @@ const musicCtrl = {
   addNextTrack: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
-      const { artist, track } = req.body;
-      if (!artist || !track) return res.status(400).json({ msg: "Missing required parameters" });
-      const similar = await lastfmapis.track.getSimilar(artist, track);
-      if (similar.length === 0) {
-        console.log("FM API does not find similar song!");
-        return res.status(400).json({ msg: "Cannot fint similar tracks" });
-      }
-      const index = coraline.getRandomInt(similar.length);
-      const song = similar[index];
-      const dbSong = await Track.findOne({ title: song.name });
-      const savedSong = dbSong ? dbSong : await youtubeapis.downloadTrack(song.artist.name, song.name);
-      res.status(200).json(savedSong);
+      const {user} = req;
+      const random = coraline.getRandomInt(user.player.next.length);
+      const nextTrackID = user.player.next[random];
+      const nextTrack = await Track.findById(nextTrackID);
+      if (!nextTrack) return res.status(400).json({msg: 'User queue is empty'});
+      res.status(200).json(nextTrack);
+      const deleteFromQueue = user.player.next.filter(item => item._id.toString() !== nextTrackID.toString());
+      user.player.next = deleteFromQueue;
+      if (user.player.next.length >= 100) return
+      const newTrack = await trackapis.addNext(nextTrack?.artist, nextTrack?.title);
+      user.player.next.push(newTrack._id);
+      await user.save();
     } catch (err) {
-      console.log(err, 'catched');
-      catchErrorCtrl(err, res);
+      console.log(err, 'addNextSong');
     }
   },
   downloadMusic: async (userRequest: Request, res: Response) => {
@@ -79,7 +78,7 @@ const musicCtrl = {
       );
       res.status(201).json(savedTrack);
     } catch (err) {
-      console.log(err);
+      console.log(err, 'downloadMusic catch');
       catchErrorCtrl(err, res);
     }
   },
@@ -87,15 +86,8 @@ const musicCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { user } = req;
-      let response: TrackProps[] = [];
-      await Promise.all(
-        user.liked_tracks.map(async (likedId) => {
-          const track = await Track.findOne({ _id: likedId });
-          if (!track) return;
-          response.push(track);
-        })
-      );
-      res.status(200).json(response);
+      const tracks = await Track.find({_id: user.liked_tracks});
+      res.status(200).json(tracks);
     } catch (err) {
       catchErrorCtrl(err, res);
     }

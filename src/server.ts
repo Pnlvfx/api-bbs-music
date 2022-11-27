@@ -6,9 +6,12 @@ import oauthRouter from './components/oauth/oauthRouter';
 import musicRouter from './components/music/musicRouter';
 import userRouter from './components/user/userRouter';
 import auth from './middleware/auth';
-import coraline from './database/coraline';
+import coraline from './coraline/coraline';
 import videoRouter from './components/video/videoRouter';
-import lastPlayed from './middleware/lastPlayed';
+import initialRouter from './components/user/initial/initialRouter';
+import searchRouter from './components/search/searchRouter';
+import artistRouter from './components/artist/artistRouter';
+import playerRouter from './components/player/playerRouter';
 
 const app = express();
 
@@ -37,8 +40,16 @@ app.use('/user', userRouter);
 
 app.use(auth);
 
+app.use('/', initialRouter);
+
+app.use('/search', searchRouter);
+
+app.use('/artist', artistRouter);
+
+app.use('/player', playerRouter);
+
 app.use('/music', musicRouter);
 
-app.use('/music', lastPlayed, express.static(path));
+app.use('/music', express.static(path));
 
 app.listen(4000);

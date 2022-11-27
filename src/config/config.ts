@@ -13,6 +13,7 @@ interface ENV {
    LASTFM_API_SECRET: string | undefined
    IP_LOOKUP_API_KEY: string | undefined
    COOKIE_DOMAIN: string | undefined
+   TELEGRAM_TOKEN: string | undefined
 }
 
 interface Config {
@@ -25,6 +26,7 @@ interface Config {
     LASTFM_API_SECRET: string
     IP_LOOKUP_API_KEY: string
     COOKIE_DOMAIN: string
+    TELEGRAM_TOKEN: string
 }
 
 const getConfig = (): ENV => {
@@ -38,6 +40,7 @@ const getConfig = (): ENV => {
         LASTFM_API_SECRET: process.env.LASTFM_API_SECRET,
         IP_LOOKUP_API_KEY: process.env.IP_LOOKUP_API_KEY,
         COOKIE_DOMAIN: process.env.COOKIE_DOMAIN,
+        TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN
     }
 }
 

@@ -1,10 +1,9 @@
-import { catchError } from "../../../lib/common";
+import { catchError } from "../../common";
 import lastfmapis from "../lastfmapis";
 import config from '../../../config/config';
-import { FmTrack, FMtrackProps } from "../types/FMtrack";
+import { FMtrackProps } from "../types/FMtrack";
 import { FMSimilar } from "../types/FMsimilartrack";
 import { FMTrackInfo } from "../types/FMtrackInfo";
-import coraline from "../../../database/coraline";
 
 const track = {
     search: async (text: string) => {
@@ -35,7 +34,6 @@ const track = {
             const similar = data.similartracks.track;
             return similar as FMSimilar[]
         } catch (err) {
-            console.log({err});
             throw catchError(err);
         }
     },

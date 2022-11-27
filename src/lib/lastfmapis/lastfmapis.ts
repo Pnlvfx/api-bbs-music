@@ -1,5 +1,5 @@
-import artist from "./route/artist";
-import track from './route/track';
+import artist from "./route/FMartist";
+import track from './route/FMtrack';
 
 const base_url = 'http://ws.audioscrobbler.com/2.0/';
 

@@ -28,6 +28,11 @@ const coraline = {
   getRandomInt: (max: number) => {
     return Math.floor(Math.random() * max);
   },
+  validateEmail: (email: string) => {
+    const re =
+      /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  },
   getMediaFromUrl: (
     url: string,
     public_id: string,

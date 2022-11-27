@@ -5,6 +5,7 @@ import User from '../../models/User';
 import { catchErrorCtrl } from "../../lib/common";
 import jwt from 'jsonwebtoken';
 import userapis from "../../lib/userapis";
+import coraline from "../../coraline/coraline";
 
 const oauthCtrl = {
     register: async (req: Request, res: Response) => {
@@ -50,6 +51,17 @@ const oauthCtrl = {
                     role: user.role
                 }
             });
+        } catch (err) {
+            catchErrorCtrl(err, res);
+        }
+    },
+    checkEmail: async (req: Request, res: Response) => {
+        try {
+            const {email} = req.body;
+            if(!coraline.validateEmail(email)) return res.status(400).json({msg: "Not a valid email address"});
+            const existingEmail = await User.findOne({email})
+            if(existingEmail) return res.status(400).json({msg: "This email already exist!"});
+            res.status(200).json(true);
         } catch (err) {
             throw catchErrorCtrl(err, res);
         }
