@@ -11,7 +11,7 @@ const playerCtrl = {
             const check = await Track.findById(currentID);
             if (!check) return res.status(400).json({msg: 'Invalid current song!'});
             const {user} = req;
-            user.player.current = check._id
+            user.player.current.track = check._id
             await user.save();
             console.log(check.title, 'is the current track')
             console.log()

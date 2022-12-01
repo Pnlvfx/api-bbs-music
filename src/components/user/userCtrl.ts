@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import Track from "../../models/Track";
 import { catchErrorCtrl } from "../../lib/common";
 import { getUserFromToken } from "./user-hooks";
-import { TrackProps } from "../../models/types/track";
 import { UserRequest } from "../../@types/express";
 import coraline from "../../coraline/coraline";
 import playerapis from "../../lib/playerapis/playerapis";
@@ -21,24 +20,7 @@ const userCtrl = {
           })
           .json(undefined);
       } else {
-        let last_played: TrackProps[] = [];
-        // if (user.last_played.length >= 1) {
-        //   await Promise.all(
-        //     user.last_played.map(async (latestId) => {
-        //       const latest = await Track.findOne({ _id: latestId });
-        //       if (!latest) return;
-        //       last_played.push(latest);
-        //     })
-        //   );
-        //   last_played.reverse();
-        // }
-        // if (user.last_played.length >= 1) { // test
-        //   await Promise.all(
-        //     last_played.map((last) => {
-        //       console.log(last);
-        //     })
-        //   )
-        // }
+        const last_played = await Track.findById(user.player.current.track)
         res.status(200).json({
           username: user.username,
           avatar: user.avatar,

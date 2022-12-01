@@ -13,8 +13,7 @@ const musicCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { text } = req.query;
-      if (!text)
-        return res.status(400).json({ msg: 'Missing required params: "text"' });
+      if (!text) return res.status(400).json({ msg: 'Missing required params: "text"' });
       const tracks = await lastfmapis.track.search(text.toString());
       //const artists = await lastfmapis.artist.search(text.toString());
       let response1: TrackObject[] = [];
@@ -70,8 +69,7 @@ const musicCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { artist, track } = req.body;
-      if (!artist || !track)
-        return res.status(400).json({ msg: "Missing required body params!" });
+      if (!artist || !track) return res.status(400).json({ msg: "Missing required body params!" });
       const savedTrack = await youtubeapis.downloadTrack(
         artist,
         track.toString()
