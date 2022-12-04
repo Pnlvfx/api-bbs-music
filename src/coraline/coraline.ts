@@ -131,7 +131,13 @@ const coraline = {
       const _find = await fsPromises.readFile(file);
       if (!_find) throw new Error(`File not found!`);
       return JSON.parse(_find.toString());
-    } catch (err) {}
+    } catch (err) {
+      throw catchError(err);
+    }
+  },
+  readJSONSync: (file: string) => {
+    const find = fs.readFileSync(file);
+    return JSON.parse(find.toString());
   },
   videos: {
     splitId: (public_id: string) => {
@@ -140,7 +146,7 @@ const coraline = {
         if (collection.length !== 2) throw new Error("Invalid public_id");
         return { collection: collection[0], id: collection[1] };
       } catch (err) {
-        catchError(err);
+        throw catchError(err);
       }
     },
     buildUrl: (collection: string, id: string) => {
@@ -189,7 +195,7 @@ const coraline = {
         };
         return video as VideoProps;
       } catch (err) {
-        catchError(err);
+        throw catchError(err);
       }
     },
   },

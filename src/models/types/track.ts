@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import { FMTrackInfo } from "../../lib/lastfmapis/types/FMtrackInfo";
 
 export interface YDdownload {
@@ -29,23 +29,4 @@ export interface TrackProps extends Document {
   file: string;
   liked: boolean;
   is_saved: boolean;
-}
-
-export interface TrackObject {
-  id: string;
-  url: string;
-  type: string;
-  content_type: string;
-  duration: number;
-  title: string;
-  artist: string;
-  album?: string;
-  description?: string;
-  genre?: string;
-  date?: string;
-  artwork: string;
-  file: string;
-  liked: boolean;
-  is_saved: boolean;
-  _id?: Types.ObjectId | null
 }

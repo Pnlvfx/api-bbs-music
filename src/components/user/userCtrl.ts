@@ -20,12 +20,13 @@ const userCtrl = {
           })
           .json(undefined);
       } else {
-        const last_played = await Track.findById(user.player.current.track)
+        const last_played = await Track.findById(user.player.current.track);
+        const liked_tracks = await Track.find({_id: user.liked_tracks});
         res.status(200).json({
           username: user.username,
           avatar: user.avatar,
           role: user.role,
-          liked_tracks: user.liked_tracks,
+          liked_tracks: liked_tracks.reverse(),
           last_played,
           liked_artists: user.liked_artists,
         });
@@ -73,7 +74,6 @@ const userCtrl = {
           const index = user.last_search.findIndex(
             (last_s) => last_s.toString() === track._id.toString()
           );
-          console.log("saveLastSearch index is", index);
           coraline.arrayMove(user.last_search, index, user.last_search.length);
         } else {
           if (user.last_search.length >= 50) {

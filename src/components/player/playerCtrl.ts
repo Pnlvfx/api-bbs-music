@@ -14,7 +14,6 @@ const playerCtrl = {
             user.player.current.track = check._id
             await user.save();
             console.log(check.title, 'is the current track')
-            console.log()
             res.status(200).json(true);
         } catch (err) {
             catchErrorCtrl(err, res);

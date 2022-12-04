@@ -1,5 +1,4 @@
 import { IUser } from "../../models/types/user";
-import { catchError } from "../common";
 import lastfmapis from "../lastfmapis/lastfmapis";
 import { FMSimilar } from "../lastfmapis/types/FMsimilartrack";
 import youtubeapis from "../youtubeapis/youtubeapis";
@@ -21,24 +20,37 @@ const playerapis = {
       let index = 0;
 
       const timer = setInterval(async () => {
-        if (index === tracks.length - 1) {
-            console.log('cleared');
-          clearInterval(timer);
-          return 'done';
+        try {
+          if (index === tracks.length - 1) {
+            console.log("cleared");
+            playerapis.shuffleArray(user.player.next);
+            clearInterval(timer);
+            return "done";
+          }
+          const track = tracks[index];
+          index += 1;
+          const savedTrack = await youtubeapis.downloadTrack(
+            track.artist.name,
+            track.name
+          );
+          if (user.player.next.find((next) => next === savedTrack._id)) return;
+          console.log(savedTrack.title, "added to DB");
+          user.player.next.push(savedTrack._id);
+          await user.save();
+        } catch (err) {
+          console.log(err);
         }
-        const track = tracks[index];
-        index += 1;
-        const savedTrack = await youtubeapis.downloadTrack(
-          track.artist.name,
-          track.name
-        );
-        if (user.player.next.find((next) => next === savedTrack._id)) return;
-        console.log(savedTrack.title, 'added to DB');
-        user.player.next.push(savedTrack._id);
-        await user.save();
       }, 25000);
     } catch (err) {
-      throw catchError(err);
+      console.log(err, "playerapis");
+    }
+  },
+  shuffleArray: (array: any[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
     }
   },
 };

@@ -14,6 +14,8 @@ interface ENV {
    IP_LOOKUP_API_KEY: string | undefined
    COOKIE_DOMAIN: string | undefined
    TELEGRAM_TOKEN: string | undefined
+   SPOTIFY_CLIENT_ID : string | undefined
+   SPOTIFY_CLIENT_SECRET: string | undefined
 }
 
 interface Config {
@@ -27,6 +29,8 @@ interface Config {
     IP_LOOKUP_API_KEY: string
     COOKIE_DOMAIN: string
     TELEGRAM_TOKEN: string
+    SPOTIFY_CLIENT_ID : string
+    SPOTIFY_CLIENT_SECRET: string
 }
 
 const getConfig = (): ENV => {
@@ -40,7 +44,9 @@ const getConfig = (): ENV => {
         LASTFM_API_SECRET: process.env.LASTFM_API_SECRET,
         IP_LOOKUP_API_KEY: process.env.IP_LOOKUP_API_KEY,
         COOKIE_DOMAIN: process.env.COOKIE_DOMAIN,
-        TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN
+        TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN,
+        SPOTIFY_CLIENT_ID : process.env.SPOTIFY_CLIENT_ID,
+        SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET
     }
 }
 

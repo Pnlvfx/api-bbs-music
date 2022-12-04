@@ -6,10 +6,10 @@ import { FMSimilar } from "../types/FMsimilartrack";
 import { FMTrackInfo } from "../types/FMtrackInfo";
 
 const track = {
-    search: async (text: string) => {
+    search: async (text: string, limit: number) => {
         try {
             text = encodeURIComponent(text);
-            const url = `${lastfmapis.base_url}?method=track.search&track=${text}&api_key=${config.LASTFM_API_KEY}&format=json`;
+            const url = `${lastfmapis.base_url}?method=track.search&track=${text}&limit=${limit}&api_key=${config.LASTFM_API_KEY}&format=json`;
             const res = await fetch(url, {
                 method: 'GET'
             });

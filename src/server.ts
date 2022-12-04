@@ -8,16 +8,18 @@ import userRouter from './components/user/userRouter';
 import auth from './middleware/auth';
 import coraline from './coraline/coraline';
 import videoRouter from './components/video/videoRouter';
-import initialRouter from './components/user/initial/initialRouter';
 import searchRouter from './components/search/searchRouter';
 import artistRouter from './components/artist/artistRouter';
 import playerRouter from './components/player/playerRouter';
+import spotifyToken from './lib/spotifyapis/spotifyToken';
 
 const app = express();
 
 app.use(cookieParser());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json({limit: '50mb'}));
+
+spotifyToken();
 
 const path = coraline.use('music');
 const imagesPath = coraline.use('images');
@@ -39,8 +41,6 @@ app.use('/', oauthRouter);
 app.use('/user', userRouter);
 
 app.use(auth);
-
-app.use('/', initialRouter);
 
 app.use('/search', searchRouter);
 
