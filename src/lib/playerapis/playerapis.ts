@@ -1,16 +1,19 @@
+import Player from "../../models/Player";
 import { IUser } from "../../models/types/user";
-import lastfmapis from "../lastfmapis/lastfmapis";
-import { FMSimilar } from "../lastfmapis/types/FMsimilartrack";
+import spotifyapis from "../spotifyapis/spotifyapis";
 import youtubeapis from "../youtubeapis/youtubeapis";
 
 const playerapis = {
   create_queue: async (user: IUser) => {
     try {
-      let tracks: FMSimilar[] = [];
+      const player = await Player.findById(user.player);
+      if (!player) throw new Error('Something went wrong! Please contact support!');
+      let tracks: SpotifyTrackProps[] = [];
       await Promise.all(
         user.liked_artists.map(async (liked_artist) => {
-          const artist_tracks = await lastfmapis.artist.getTopTracks(
-            liked_artist
+          const artist_tracks = await spotifyapis.artist.getTopTrack(
+            liked_artist.spID,
+            user.countryCode
           );
           artist_tracks.length = 10;
           const arr = tracks.concat(artist_tracks);
@@ -23,24 +26,25 @@ const playerapis = {
         try {
           if (index === tracks.length - 1) {
             console.log("cleared");
-            playerapis.shuffleArray(user.player.next);
+            playerapis.shuffleArray(player.next);
             clearInterval(timer);
             return "done";
           }
           const track = tracks[index];
           index += 1;
           const savedTrack = await youtubeapis.downloadTrack(
-            track.artist.name,
-            track.name
+            track.artists[0].name,
+            track.name,
+            track.id
           );
-          if (user.player.next.find((next) => next === savedTrack._id)) return;
+          if (player.next.find((next) => next === savedTrack._id)) return;
           console.log(savedTrack.title, "added to DB");
-          user.player.next.push(savedTrack._id);
-          await user.save();
+          player.next.push(savedTrack._id);
+          await player.save();
         } catch (err) {
           console.log(err);
         }
-      }, 25000);
+      }, 40000);
     } catch (err) {
       console.log(err, "playerapis");
     }

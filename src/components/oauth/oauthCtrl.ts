@@ -6,6 +6,7 @@ import { catchErrorCtrl } from "../../lib/common";
 import jwt from 'jsonwebtoken';
 import userapis from "../../lib/userapis";
 import coraline from "../../coraline/coraline";
+import Player from "../../models/Player";
 
 const oauthCtrl = {
     register: async (req: Request, res: Response) => {
@@ -21,16 +22,19 @@ const oauthCtrl = {
             const passwordHash = bcrypt.hashSync(password, 10);
             const userIPInfo = await userapis.getIP();
             const {country, countryCode, city, region, lat, lon} = userIPInfo;
+            const player = new Player();
+            await player.save();
             const user = new User({
                 email,
                 username,
                 password: passwordHash,
+                player: player._id,
                 country,
                 countryCode,
                 city,
                 region,
                 lat,
-                lon
+                lon,
             });
             await user.save();
             const token = jwt.sign({id: user._id}, config.SECRET);

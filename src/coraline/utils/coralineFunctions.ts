@@ -1,5 +1,4 @@
 import path from 'path';
-import config from '../../config/config';
 import fs from 'fs';
 import { catchError } from '../../lib/common';
 import coraline from '../coraline';
@@ -45,8 +44,7 @@ export const buildMediaPath = (public_id: string, type: 'images' | 'videos', for
 
 export const buildMediaUrl = (public_id: string, type: 'images' | 'videos', format: string, w?: number, h?: number) => {
     const split = public_id.split('/');
-    const base_url = config.SERVER_URL;
-    const url = `${base_url}/${type}/${split[0]}/${split[1]}.${format}`;
+    const url = `${process.env.SERVER_URL}/${type}/${split[0]}/${split[1]}.${format}`;
     const query = `?w=${w}&h=${h}`
     const final_url = w && h ? `${url}${query}` : url;
     return final_url;

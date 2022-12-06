@@ -31,6 +31,9 @@ const TrackSchema = new Schema<TrackProps>({
         type: String,
         required: true
     },
+    artistSpId: {
+        type: String,
+    },
     album: {
         type: String,
     },
@@ -38,7 +41,7 @@ const TrackSchema = new Schema<TrackProps>({
         type: String,
     },
     genre: {
-        type: String,
+        type: [String],
     },
     date: {
         type: String,
@@ -54,6 +57,10 @@ const TrackSchema = new Schema<TrackProps>({
     is_saved: {
         type: Boolean,
         default: true
+    },
+    spID: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true

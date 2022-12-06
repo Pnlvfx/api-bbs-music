@@ -1,5 +1,4 @@
 import { Document } from "mongoose";
-import { FMTrackInfo } from "../../lib/lastfmapis/types/FMtrackInfo";
 
 export interface YDdownload {
   videoId: string;
@@ -10,20 +9,22 @@ export interface YDdownload {
   artist: string;
   title: string;
   thumbnail: string;
-  info: FMTrackInfo;
+  info: SpotifyTrackProps
 }
 
 export interface TrackProps extends Document {
   id: string;
+  spID: string
   url: string;
   type: string;
   content_type: string;
   duration: number;
   title: string;
   artist: string;
+  artistSpId: string;
   album?: string;
   description?: string;
-  genre?: string;
+  genre: string[]
   date?: string;
   artwork: string;
   file: string;

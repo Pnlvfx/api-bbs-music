@@ -1,5 +1,4 @@
 import fs from "fs";
-import config from "../config/config";
 import path from "path";
 import { catchError } from "../lib/common";
 import {
@@ -150,8 +149,7 @@ const coraline = {
       }
     },
     buildUrl: (collection: string, id: string) => {
-      const { SERVER_URL } = config;
-      const url = `${SERVER_URL}/videos/${collection}/${id}.mp4`;
+      const url = `${process.env.SERVER_URL}/videos/${collection}/${id}.mp4`;
       return url;
     },
     saveVideo: async (

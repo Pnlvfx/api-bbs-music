@@ -1,26 +1,29 @@
-import getAudioDurationInSeconds from "get-audio-duration";
 import { catchError } from "../../../lib/common";
 import config from "../../../config/config";
 import { YDdownload } from "../../../models/types/track";
 import Track from "../../../models/Track";
+import spotifyapis from "../../../lib/spotifyapis/spotifyapis";
 
 const createTrack = async (song: YDdownload) => {
   const url = `${config.SERVER_URL}/music/${song.videoId}.mp3`;
-  const duration = await getAudioDurationInSeconds(song.file);
+  const duration = song.info.duration_ms;
+  const artist = await spotifyapis.artist.getArtist(song.info.artists[0].id);
   const track = new Track({
     id: song.videoId,
     url,
     type: "default",
     content_type: "audio/mp3",
     duration,
-    title: song.title,
-    artist: song.artist,
-    album: song.info?.album,
+    title: song.info.name,
+    artist: song.info.artists[0].name,
+    artistSpId: song.info.artists[0].id,
+    album: song.info?.album.name,
     description: "",
-    genre: "",
-    date: "",
-    artwork: song.thumbnail,
+    genre: artist.genres,
+    date: song.info.album.release_date,
+    artwork: song.info.album.images[0].url,
     file: song.file,
+    spID: song.info.id,
     is_saved: true,
   });
   await track.save();
@@ -35,21 +38,6 @@ const music = {
     } catch (err) {
       throw catchError(err);
     }
-  },
-  isValidArtist: (artist: string) => {
-    if (artist.match(" & ")) return false;
-    if (artist.match(" e ")) return false;
-    if (artist.match(" et ")) return false;
-    if (artist.match(" ft. ")) return false;
-    if (artist.match(" feat. ")) return false;
-    if (artist.includes(", ")) return false;
-    const containsSpecialChars = (str: string) => {
-      const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-      return specialChars.test(str);
-    };
-    if (containsSpecialChars(encodeURI(artist).replaceAll("%20", "")))
-      return false;
-    return true;
   },
 };
 

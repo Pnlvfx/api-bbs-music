@@ -24,13 +24,6 @@ const artist = {
       });
       const data = await res.json();
       if (!res.ok) throw new Error("Something went wrong, please try again!");
-      //let response: FMartistSearch[] = [];
-      //   await Promise.all(
-      //     data.results.artistmatches.artist.map((artist) => {
-      //       if (!music.isValidArtist(artist.name)) return;
-      //       response.push(artist);
-      //     })
-      //   );
       return data.results.artistmatches.artist as FMartistSearch[];
     } catch (err) {
       throw catchError(err);

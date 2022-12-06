@@ -4,36 +4,41 @@ import Track from "../../models/Track";
 import youtubeapis from "../../lib/youtubeapis/youtubeapis";
 import { UserRequest } from "../../@types/express";
 import trackapis from "../../lib/trackapis/trackapis";
+import Player from "../../models/Player";
+import telegramapis from "../../lib/telegramapis/telegramapis";
 
 const musicCtrl = {
   addNextTrack: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
       const {user} = req;
-      const nextTrackID = user.player.next[0];
+      const player = await Player.findById(user.player);
+      if (!player) return res.status(500).json({msg: 'Something went wrong! Please contact support!'});
+      const nextTrackID = player.next[0];
       const nextTrack = await Track.findById(nextTrackID);
+      console.log('next track is: ', nextTrack?.title);
       if (!nextTrack) return res.status(400).json({msg: 'User queue is empty'});
       res.status(200).json(nextTrack);
-      const deleteFromQueue = user.player.next.filter(item => item._id.toString() !== nextTrackID.toString());
-      user.player.next = deleteFromQueue;
-      if (user.player.next.length >= 100) return
-      const newTrack = await trackapis.addNext(nextTrack?.artist, nextTrack?.title);
-      console.log('New Track added', newTrack.title)
-      user.player.next.splice(0, 0, newTrack._id);
-      await user.save();
+
+      const deleteFromQueue = player.next.filter(item => item._id.toString() !== nextTrackID.toString());
+      player.next = deleteFromQueue;
+      await player.save();
+      if (player.next.length >= 100) return;
+      const newTrack = await trackapis.addNext(user);
+      console.log('New Track added', newTrack.title);
+      player.next.splice(0, 0, newTrack._id);
+      await player.save();
     } catch (err) {
+      telegramapis.sendLog(JSON.stringify(err));
       console.log(err, 'addNextSong');
     }
   },
   downloadMusic: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
-      const { artist, track } = req.body;
-      if (!artist || !track) return res.status(400).json({ msg: "Missing required body params!" });
-      const savedTrack = await youtubeapis.downloadTrack(
-        artist,
-        track.toString()
-      );
+      const { artist, track, spID } = req.body;
+      if (!artist || !track || !spID) return res.status(400).json({ msg: "Missing required body params!" });
+      const savedTrack = await youtubeapis.downloadTrack(artist, track.toString(), spID);
       res.status(201).json(savedTrack);
     } catch (err) {
       console.log(err, 'downloadMusic catch');

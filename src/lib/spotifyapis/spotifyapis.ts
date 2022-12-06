@@ -4,6 +4,7 @@ import config from '../../config/config';
 import coraline from "../../coraline/coraline";
 import artist from "./SPartist";
 import { SpotifySearchProps } from "./types/search";
+import track from "./SPtrack";
 
 //const expiryTime = new Date().getTime() + access_token.expires_in * 1000;
 
@@ -28,9 +29,9 @@ const spotifyapis = {
             throw catchError(err);
         }
     },
-    search: async (query: string, type: string) => {
+    search: async (query: string, type: string, market: string) => {
         try {
-            const url = `${spotify.base_url}/search?q=${query}&type=${type}`;
+            const url = `${spotify.base_url}/search?q=${query}&type=${type}&market=${market}`;
             const res = await fetch(url, {
                 method: 'get',
                 headers: spotify.headers,
@@ -43,6 +44,28 @@ const spotifyapis = {
         }
     },
     artist,
+    track,
+    getRecommendations: async (seed_artists: string, seed_genres: string, seed_tracks: string, market: string) => {
+        try {
+            console.log({seed_artists, seed_genres, seed_tracks, market})
+            const url = `${spotify.base_url}/recommendations?` + new URLSearchParams({
+                seed_artists,
+                seed_genres,
+                seed_tracks,
+                market
+            });
+            const res = await fetch(url, {
+                method: 'get',
+                headers: spotify.headers,
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(JSON.stringify(data));
+            return data.tracks as SpotifyTrackProps[];
+            
+        } catch (err) {
+            throw catchError(err);
+        }
+    }
 }
 
 export default spotifyapis;

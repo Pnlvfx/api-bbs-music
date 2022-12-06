@@ -32,18 +32,8 @@ const UserSchema = new Schema<IUser>(
       default: "https://api.bbabystyle.com/images/icons/undi.png",
     },
     player: {
-      previous: {
-        type: [Schema.Types.ObjectId]
-      },
-      current: {
-        track: {
-          type: Schema.Types.ObjectId
-        },
-        from: String
-      },
-      next: {
-        type: [Schema.Types.ObjectId]
-      }
+      type: Schema.Types.ObjectId,
+      required: true
     },
     liked_tracks: {
       type: [Schema.Types.ObjectId],
@@ -57,7 +47,12 @@ const UserSchema = new Schema<IUser>(
       validate: [arrayLimit, "Last search execeds the limit of 50"],
     },
     liked_artists: {
-      type: [String],
+      type: [
+        {
+          name: String,
+          spID: String
+        }
+      ],
       unique: true,
     },
     country: {

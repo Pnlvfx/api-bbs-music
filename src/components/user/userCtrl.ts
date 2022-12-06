@@ -5,6 +5,8 @@ import { getUserFromToken } from "./user-hooks";
 import { UserRequest } from "../../@types/express";
 import coraline from "../../coraline/coraline";
 import playerapis from "../../lib/playerapis/playerapis";
+import User from "../../models/User";
+import Player from "../../models/Player";
 
 const userCtrl = {
   user: async (req: Request, res: Response) => {
@@ -20,7 +22,9 @@ const userCtrl = {
           })
           .json(undefined);
       } else {
-        const last_played = await Track.findById(user.player.current.track);
+        const player = await Player.findById(user.player);
+        if (!player) return res.status(500).json({msg: 'Something went wrong! Please contact support!'});
+        const last_played = await Track.findById(player.current.track);
         const liked_tracks = await Track.find({_id: user.liked_tracks});
         res.status(200).json({
           username: user.username,
@@ -40,14 +44,8 @@ const userCtrl = {
       const req = userRequest as UserRequest;
       const { user } = req;
       if (user.last_search.length <= 0) return res.status(200).json([]);
-      const tracks = await Promise.all(
-        user.last_search.map(async (last_s) => {
-          const track = await Track.findById(last_s);
-          return track;
-        })
-      );
-      tracks.reverse();
-      res.status(200).json({ tracks });
+      const tracks = await Track.find({_id:  user.last_search});
+      res.status(200).json({tracks: {items: tracks.reverse()}});
     } catch (err) {
       catchErrorCtrl(err, res);
     }
@@ -60,30 +58,22 @@ const userCtrl = {
       const { user } = req;
       const track = await Track.findById(id);
       if (!track) return res.status(400).json({ msg: "Invalid track!" });
-      if (user.last_search.length < 1) {
-        user.last_search.push(track._id);
-      } else if (user.last_search.length === 1) {
-        if (track._id === user.last_search[0]._id) return;
-        user.last_search.push(track._id);
-      } else {
-        const exist = user.last_search.find(
+      console.log(track.title, 'added to last searched');
+      const exists = await User.exists({last_search: id, _id: user._id});
+      if (exists) {
+        const index = user.last_search.findIndex(
           (last_s) => last_s.toString() === track._id.toString()
         );
-        if (exist) {
-          /// this function sometimes crash;
-          const index = user.last_search.findIndex(
-            (last_s) => last_s.toString() === track._id.toString()
-          );
-          coraline.arrayMove(user.last_search, index, user.last_search.length);
-        } else {
-          if (user.last_search.length >= 50) {
-            // delete older and add new (limit 50);
-            user.last_search.shift();
-          }
-          user.last_search.push(track._id);
+        coraline.arrayMove(user.last_search, index, user.last_search.length - 1);
+      } else {
+        if (user.last_search.length >= 50) {
+          user.last_search.shift();
         }
+        user.last_search.push(track._id);
       }
       await user.save();
+      const test = await Track.find({_id: user.last_search});
+      console.log(test)
       res.status(200).json(true);
     } catch (err) {
       console.log(err, "last search catch");

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Track from "../../models/Track";
 import { UserRequest } from "../../@types/express";
 import { catchErrorCtrl } from "../../lib/common";
+import Player from "../../models/Player";
 
 const playerCtrl = {
     saveCurrent: async (userRequest: Request, res: Response) => {
@@ -11,8 +12,10 @@ const playerCtrl = {
             const check = await Track.findById(currentID);
             if (!check) return res.status(400).json({msg: 'Invalid current song!'});
             const {user} = req;
-            user.player.current.track = check._id
-            await user.save();
+            const player = await Player.findById(user.player);
+            if (!player) return res.status(500).json({msg: 'Something went wrong! Please contact support!'});
+            player.current.track = check._id;
+            await player.save();
             console.log(check.title, 'is the current track')
             res.status(200).json(true);
         } catch (err) {

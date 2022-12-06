@@ -8,10 +8,10 @@ const searchCtrl = {
   search: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
+      const {user} = req;
       const { text } = req.query;
-      if (!text)
-        return res.status(400).json({ msg: 'Missing required params: "text"' });
-      const data = await spotifyapis.search(text.toString(), "artist,track");
+      if (!text) return res.status(400).json({ msg: 'Missing required params: "text"' });
+      const data = await spotifyapis.search(text.toString(), "artist,track", user.countryCode);
       await Promise.all(
         data.tracks.items.map(async (track, index) => {
           const dbTrack = await Track.findOne({
@@ -23,18 +23,6 @@ const searchCtrl = {
         })
       );
       res.status(200).json(data);
-    } catch (err) {
-      catchErrorCtrl(err, res);
-    }
-  },
-  artist: async (userRequest: Request, res: Response) => {
-    try {
-      const req = userRequest as UserRequest;
-      const { text } = req.query;
-      if (!text)
-        return res.status(400).json({ msg: 'Missing required params: "text"' });
-      const artists = await spotifyapis.search(text.toString(), "artist");
-      res.status(200).json(artists.artists.items);
     } catch (err) {
       catchErrorCtrl(err, res);
     }
