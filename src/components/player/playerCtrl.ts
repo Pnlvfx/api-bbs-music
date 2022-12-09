@@ -21,6 +21,21 @@ const playerCtrl = {
         } catch (err) {
             catchErrorCtrl(err, res);
         }
+    },
+    addToQueue: async (userRequest: Request, res: Response) => {
+        try {
+            const req = userRequest as UserRequest;
+            const {user} = req;
+            const {_id} = req.query;
+            const track = await Track.findById(_id);
+            const player = await Player.findById(user.player);
+            if (!player || !track) return res.status(400).json({msg: 'Something went wrong!'});
+            player.queue.push(track._id);
+            await player.save();
+            res.status(200).json(true);
+        } catch (err) {
+            catchErrorCtrl(err, res);
+        }
     }
 }
 

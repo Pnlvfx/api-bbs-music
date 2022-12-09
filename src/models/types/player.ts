@@ -7,4 +7,5 @@ export interface PlayerProps extends Document {
     from: "initial" | "home" | "search" | "library";
   };
   next: Types.ObjectId[];
+  queue: Types.ObjectId[];
 }

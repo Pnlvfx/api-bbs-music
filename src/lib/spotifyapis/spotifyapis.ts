@@ -5,6 +5,7 @@ import coraline from "../../coraline/coraline";
 import artist from "./SPartist";
 import { SpotifySearchProps } from "./types/search";
 import track from "./SPtrack";
+import spotifyError from "./spotifyError";
 
 //const expiryTime = new Date().getTime() + access_token.expires_in * 1000;
 
@@ -37,7 +38,7 @@ const spotifyapis = {
                 headers: spotify.headers,
             })
             const data = await res.json() as SpotifySearchProps;
-            if (!res.ok) throw new Error(res.status + res.statusText);
+            if (!res.ok) await spotifyError(res.status, data);
             return data;
         } catch (err) {
             throw catchError(err);
@@ -59,9 +60,8 @@ const spotifyapis = {
                 headers: spotify.headers,
             })
             const data = await res.json()
-            if (!res.ok) throw new Error(JSON.stringify(data));
+            if (!res.ok) await spotifyError(res.status, data);
             return data.tracks as SpotifyTrackProps[];
-            
         } catch (err) {
             throw catchError(err);
         }

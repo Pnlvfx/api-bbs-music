@@ -10,8 +10,8 @@ import coraline from './coraline/coraline';
 import videoRouter from './components/video/videoRouter';
 import searchRouter from './components/search/searchRouter';
 import artistRouter from './components/artist/artistRouter';
-import playerRouter from './components/player/playerRouter';
 import spotifyToken from './lib/spotifyapis/spotifyToken';
+import analyticsRouter from './components/analytics/analyticsRouter';
 
 const app = express();
 
@@ -32,7 +32,10 @@ app.get('/', (req, res) => {
     res.send('http server')
 })
 
-app.use('/images/icons', express.static(`${imagesPath}/icons`));
+app.use('/images/icons', express.static(`${imagesPath}/icons`, {
+    cacheControl: true,
+    maxAge: "private, max-age=1309600"
+}));
 
 app.use('/video', videoRouter);
 
@@ -40,13 +43,13 @@ app.use('/', oauthRouter);
 
 app.use('/user', userRouter);
 
+app.use('/analytics', analyticsRouter);
+
 app.use(auth);
 
 app.use('/search', searchRouter);
 
 app.use('/artist', artistRouter);
-
-app.use('/player', playerRouter);
 
 app.use('/music', musicRouter);
 

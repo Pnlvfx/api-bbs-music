@@ -11,11 +11,11 @@ const youtubeapis = {
   downloadTrack: async (artist: string, track: string, spID: string) => {
     try {
       return new Promise<TrackProps>(async (resolve, rejects) => {
-        const t = `${artist.replaceAll("&", "")}${" "}${track.replaceAll(
-          "&",
-          ""
-        )}`;
-        const text = t.replaceAll(" ", "+");
+        const trackInfo = await spotifyapis.track.getTrack(spID);
+        if (trackInfo.name === trackInfo.album.name) {
+          track = track + '+' + 'song';
+        }
+        const text = encodeURI(`${artist}+${track}`).replaceAll('%20', '+');
         const browser = await puppeteer.launch({
           args: ["--no-sandbox", "--disabled-setupid-sandbox"],
         });
@@ -50,16 +50,20 @@ const youtubeapis = {
         YD.download(id, `${id}.mp3`);
         YD.on("finished", async (err, data: YDdownload) => {
           if (err) return rejects(err);
-          const trackInfo = await spotifyapis.track.getTrack(spID);
-          data.info = trackInfo;
-          const savedTrack = await music.saveMusic(data);
-          return resolve(savedTrack);
+          try {
+            data.info = trackInfo;
+            const savedTrack = await music.saveMusic(data);
+            return resolve(savedTrack);
+          } catch (err) {
+            console.log(err, 'from youtubeapis track: ', data.title);
+            throw rejects(err);
+          }
         });
         YD.on("error", (error) => {
           return rejects(error);
         });
         YD.on("progress", (progress) => {
-          //console.log(JSON.stringify(progress));
+          progress = progress;
         });
       });
     } catch (err) {

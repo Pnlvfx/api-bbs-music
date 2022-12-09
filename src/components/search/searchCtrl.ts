@@ -9,13 +9,14 @@ const searchCtrl = {
     try {
       const req = userRequest as UserRequest;
       const {user} = req;
-      const { text } = req.query;
-      if (!text) return res.status(400).json({ msg: 'Missing required params: "text"' });
-      const data = await spotifyapis.search(text.toString(), "artist,track", user.countryCode);
+      const { text, type } = req.query;
+      if (!text || !type) return res.status(400).json({ msg: 'Missing required params: "text"' });
+      const data = await spotifyapis.search(text.toString(), type.toString(), user.countryCode);
       await Promise.all(
         data.tracks.items.map(async (track, index) => {
           const dbTrack = await Track.findOne({
             title: (track as SpotifyTrackProps).name,
+            artist: (track as SpotifyTrackProps).artists[0].name
           });
           if (dbTrack) {
             data.tracks.items[index] = dbTrack;

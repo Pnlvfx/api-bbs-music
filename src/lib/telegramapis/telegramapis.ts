@@ -47,7 +47,7 @@ const telegramapis = {
     },
     sendLog : async (message: string) => {
         try {
-            telegramapis.sendMessage(logs_group_url, message);
+            telegramapis.sendMessage(logs_group_url, `baby-music: ${message}`);
         } catch (err) {
             catchError(err);
         }

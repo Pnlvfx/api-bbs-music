@@ -9,7 +9,6 @@ export interface IUser extends Document {
   player: Types.ObjectId;
   liked_tracks: Types.ObjectId[];
   last_search: Types.ObjectId[];
-  last_played: Types.ObjectId[];
   liked_artists: LikedArtistProps[]
   country: string;
   countryCode: string;
@@ -19,7 +18,7 @@ export interface IUser extends Document {
   lon: string;
 }
 
-type LikedArtistProps = {
+export type LikedArtistProps = {
   name: string
   spID: string
 }

@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import { IUser } from "./types/user";
 
 const arrayLimit = (val: []) => {
-  return val.length <= 50;
+  return val.length <= 35;
 };
 
 const UserSchema = new Schema<IUser>(
@@ -40,11 +40,7 @@ const UserSchema = new Schema<IUser>(
     },
     last_search: {
       type: [Schema.Types.ObjectId],
-      validate: [arrayLimit, "Last search execeds the limit of 50"],
-    },
-    last_played: {
-      type: [Schema.Types.ObjectId],
-      validate: [arrayLimit, "Last search execeds the limit of 50"],
+      validate: [arrayLimit, "Last search execeds the limit of 30"],
     },
     liked_artists: {
       type: [
@@ -76,6 +72,7 @@ const UserSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
+    versionKey: false,
   }
 );
 const User = model("User", UserSchema);

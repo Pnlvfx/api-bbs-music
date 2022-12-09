@@ -9,8 +9,7 @@ const artistCtrl = {
       const req = userRequest as UserRequest;
       const { user } = req;
       const { artist } = req.query;
-      if (!artist)
-        return res.status(400).json("Missing required query params!");
+      if (!artist) return res.status(400).json("Missing required query params!");
       const first = await spotifyapis.search(
         artist?.toString(),
         "artist",
@@ -30,6 +29,8 @@ const artistCtrl = {
       const { user } = req;
       const { liked_artist } = req.body;
       (liked_artist as SpotifyArtistProps[]).map((liked) => {
+        const exist = user.liked_artists.find((_) => _.spID === liked.id);
+        if (exist) return;
         user.liked_artists.push({name: liked.name, spID: liked.id});
       });
       await user.save();

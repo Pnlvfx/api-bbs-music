@@ -5,7 +5,6 @@ import youtubeapis from "../../lib/youtubeapis/youtubeapis";
 import { UserRequest } from "../../@types/express";
 import trackapis from "../../lib/trackapis/trackapis";
 import Player from "../../models/Player";
-import telegramapis from "../../lib/telegramapis/telegramapis";
 
 const musicCtrl = {
   addNextTrack: async (userRequest: Request, res: Response) => {
@@ -14,22 +13,23 @@ const musicCtrl = {
       const {user} = req;
       const player = await Player.findById(user.player);
       if (!player) return res.status(500).json({msg: 'Something went wrong! Please contact support!'});
-      const nextTrackID = player.next[0];
+      const nextTrackID = player.queue.length > 0 ? player.queue[0] : player.next[0];
       const nextTrack = await Track.findById(nextTrackID);
       console.log('next track is: ', nextTrack?.title);
-      if (!nextTrack) return res.status(400).json({msg: 'User queue is empty'});
-      res.status(200).json(nextTrack);
-
-      const deleteFromQueue = player.next.filter(item => item._id.toString() !== nextTrackID.toString());
-      player.next = deleteFromQueue;
-      await player.save();
+      if (!nextTrack) {
+        res.status(400).json({msg: 'User queue is empty'});
+      } else {
+        res.status(200).json(nextTrack);
+        const deleteFromQueue = player.next.filter(item => item._id.toString() !== nextTrackID.toString());
+        player.next = deleteFromQueue;
+        await player.save();
+      }
       if (player.next.length >= 100) return;
-      const newTrack = await trackapis.addNext(user);
+      const newTrack = await trackapis.addNext(user, player);
       console.log('New Track added', newTrack.title);
       player.next.splice(0, 0, newTrack._id);
       await player.save();
     } catch (err) {
-      telegramapis.sendLog(JSON.stringify(err));
       console.log(err, 'addNextSong');
     }
   },
@@ -48,20 +48,12 @@ const musicCtrl = {
   like: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
-      const { _id } = req.body;
-      if (!_id) return res.status(400).json({ msg: "Missing required params: _id" });
+      const { ids } = req.body;
+      if (!ids) return res.status(400).json({ msg: "Missing required params: ids" });
       const { user } = req;
-      const exists = user.liked_tracks.find(
-        (liked) => liked.toString() === _id
-      );
-      if (exists) {
-        const filter = user.liked_tracks.filter((liked) => liked !== exists);
-        user.liked_tracks = filter;
-      } else {
-        user.liked_tracks.push(_id);
-      }
-      await user.save();
-      res.status(200).json(exists ? false : true);
+      user.liked_tracks = ids;
+      user.save();
+      res.status(200).json(true);
     } catch (err) {
       catchErrorCtrl(err, res);
     }

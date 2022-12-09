@@ -2,7 +2,7 @@ import spotifyapis from "./spotifyapis";
 
 const spotifyToken = async () => {
     try {
-        //await spotifyapis.getAccessToken();
+        await spotifyapis.getAccessToken();
         setInterval(async () => {
             try {
                 await spotifyapis.getAccessToken();

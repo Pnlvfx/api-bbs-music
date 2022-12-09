@@ -14,6 +14,9 @@ const PlayerSchema = new Schema<PlayerProps>({
   next: {
     type: [Schema.Types.ObjectId],
   },
+  queue: {
+    type: [Schema.Types.ObjectId]
+  }
 }, {
   versionKey: false
 });

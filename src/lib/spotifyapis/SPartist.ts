@@ -1,5 +1,6 @@
 import { catchError } from "../common";
 import spotify from "./spotifyConfig";
+import spotifyError from "./spotifyError";
 
 const artist = {
     getArtist: async (id: string) => {
@@ -10,7 +11,7 @@ const artist = {
                 headers: spotify.headers,
             });
             const data = await res.json() as SpotifyArtistProps
-            if (!res.ok) throw new Error(res.status + ' ' + res.statusText)
+            if (!res.ok) await spotifyError(res.status, data);
             return data;
         } catch (err) {
             throw catchError(err);
@@ -24,7 +25,7 @@ const artist = {
                 headers: spotify.headers,
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(res.status + ' ' + res.statusText)
+            if (!res.ok) await spotifyError(res.status, data);
             return data.artists as SpotifyArtistProps[];
         } catch (err) {
             throw catchError(err);
@@ -38,7 +39,7 @@ const artist = {
                 headers: spotify.headers,
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(res.status + ' ' + res.statusText)
+            if (!res.ok) await spotifyError(res.status, data);
             return data.tracks as SpotifyTrackProps[];
         } catch (err) {
             throw catchError(err);
