@@ -4,7 +4,7 @@ import { catchErrorCtrl } from "../../lib/common";
 import { getUserFromToken } from "./user-hooks";
 import { UserRequest } from "../../@types/express";
 import playerapis from "../../lib/playerapis/playerapis";
-import Player from "../../models/Player";
+import { usePlayer } from "../../lib/playerapis/hooks/playerHooks";
 
 const userCtrl = {
   user: async (req: Request, res: Response) => {
@@ -20,8 +20,7 @@ const userCtrl = {
           })
           .json(undefined);
       } else {
-        const player = await Player.findById(user.player);
-        if (!player) return res.status(500).json({msg: 'Something went wrong! Please contact support!'});
+        const player = await usePlayer(user.player);
         // if (player.next.length <= 50) {
         //   initialQueue.
         // }
@@ -35,7 +34,12 @@ const userCtrl = {
           avatar: user.avatar,
           role: user.role,
           liked_tracks,
-          last_played,
+          player: {
+            current: {
+              track: last_played,
+              from: player.current.from,
+            }
+          },
           liked_artists: user.liked_artists,
         });
       }
@@ -47,7 +51,6 @@ const userCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { user } = req;
-      if (user.last_search.length <= 0) return res.status(200).json([]);
       const tracks = await Track.find({_id: user.last_search});
       tracks.sort((a, b) => {
         return user.last_search.indexOf(a._id) - user.last_search.indexOf(b._id)
@@ -68,6 +71,17 @@ const userCtrl = {
       res.status(200).json(true);
     } catch (err) {
       throw catchErrorCtrl(err, res);
+    }
+  },
+  clearLastSearch: async (userRequest: Request, res: Response) => {
+    try {
+      const req = userRequest as UserRequest;
+      const { user } = req;
+      user.last_search = []
+      await user.save();
+      res.status(200).json(true);
+    } catch (err) {
+      catchErrorCtrl(err, res);
     }
   },
   createQueue: async (userRequest: Request, res: Response) => {

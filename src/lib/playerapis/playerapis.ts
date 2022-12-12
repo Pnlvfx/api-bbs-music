@@ -1,14 +1,15 @@
-import Player from "../../models/Player";
+import { Types } from "mongoose";
+import { PlayerProps } from "../../models/types/player";
 import { IUser } from "../../models/types/user";
 import telegramapis from "../telegramapis/telegramapis";
 import youtubeapis from "../youtubeapis/youtubeapis";
+import { usePlayer } from "./hooks/playerHooks";
 import initialQueue from "./initialQueue/initialQueue";
 
 const playerapis = {
   create_queue: async (user: IUser) => {
     try {
-      const player = await Player.findById(user.player);
-      if (!player) throw new Error('Something went wrong! Please contact support!');
+      const player = await usePlayer(user.player);
       const tenArtists = await initialQueue.getTenArtists(user);
       const tracks = await initialQueue.getHundredTracks(tenArtists, user);
       console.log({artists: tenArtists.length, track: tracks.length}, 'started');
@@ -52,6 +53,14 @@ const playerapis = {
       array[j] = temp;
     }
   },
+  saveToRecentlyPlayed: (player: PlayerProps) => {
+    const exist = player.recently_played.find((item) => item.equals(player.current.track));
+    if (exist) {
+      
+    } else {
+      player.recently_played.push(player.current.track);
+    }
+  }
 };
 
 export default playerapis;

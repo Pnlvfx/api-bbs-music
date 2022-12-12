@@ -13,7 +13,7 @@ const artistCtrl = {
       const first = await spotifyapis.search(
         artist?.toString(),
         "artist",
-        user.countryCode
+        user.countryCode,
       );
       const artists = await spotifyapis.artist.getRelatedArtist(
         first.artists.items[0].id
@@ -39,6 +39,31 @@ const artistCtrl = {
       catchErrorCtrl(err, res);
     }
   },
+  getArtist: async (userRequest: Request, res: Response) => {
+    try {
+      const req = userRequest as UserRequest;
+      const {spId} = req.params;
+      const {user} = req;
+      if (!spId) return res.status(400).json({msg: 'Missing required params: spId'});
+      const artist = await spotifyapis.artist.getArtist(spId.toString());
+      const topTracks = await spotifyapis.artist.getTopTrack(spId, user.countryCode);
+      res.status(200).json({artist, topTracks});
+    } catch (err) {
+      catchErrorCtrl(err, res);
+    }
+  },
+  getTopTrack: async (userRequest: Request, res: Response) => {
+    try {
+      const req = userRequest as UserRequest
+      const {user} = req;
+      const {spId} = req.params;
+      if (!spId) return res.status(400).json({msg: 'Missing required params: spId'});
+      const topTracks = await spotifyapis.artist.getTopTrack(spId, user.countryCode);
+      res.status(200).json(topTracks);
+    } catch (err) {
+      catchErrorCtrl(err, res);
+    }
+  }
 };
 
 export default artistCtrl;

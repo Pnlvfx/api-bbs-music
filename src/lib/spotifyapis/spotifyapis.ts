@@ -30,9 +30,9 @@ const spotifyapis = {
             throw catchError(err);
         }
     },
-    search: async (query: string, type: string, market: string) => {
+    search: async (query: string, type: string, market: string, limit?: number, offset?: number) => {
         try {
-            const url = `${spotify.base_url}/search?q=${query}&type=${type}&market=${market}`;
+            const url = `${spotify.base_url}/search?q=${query}&type=${type}&market=${market}&limit=${limit ? limit : 20}&offset=${offset ? offset : 0}`
             const res = await fetch(url, {
                 method: 'get',
                 headers: spotify.headers,

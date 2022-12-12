@@ -2,6 +2,7 @@ import { Response } from "express";
 import telegramapis from "./telegramapis/telegramapis";
 
 export const catchError = (err : unknown) => {
+    console.log(err);
     if (err instanceof Error) {
         telegramapis.sendLog(err.message)
         throw new Error(`${err.message}`);

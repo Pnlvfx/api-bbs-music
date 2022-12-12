@@ -26,7 +26,7 @@ const youtubeapis = {
         const searchUrl = `https://www.youtube.com/results?search_query=${text}`;
         await page.goto(searchUrl);
         await page.waitForSelector("#video-title");
-        await page.waitForNetworkIdle();
+        //await page.waitForNetworkIdle();
         const url = await page.evaluate(() => {
           const doc = document.querySelector(
             "#video-title"

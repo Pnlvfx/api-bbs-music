@@ -13,6 +13,8 @@ userRouter.get('/last_search', userCtrl.getLastSearch);
 
 userRouter.post('/last_search', userCtrl.saveLastSearch);
 
+userRouter.get('/clear_last_search', userCtrl.clearLastSearch);
+
 userRouter.get('/create_queue', userCtrl.createQueue);
 
 userRouter.use('/player', playerRouter);

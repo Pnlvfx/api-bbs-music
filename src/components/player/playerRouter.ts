@@ -5,6 +5,8 @@ const playerRouter = Router();
 
 playerRouter.post('/save_current', playerCtrl.saveCurrent);
 
+playerRouter.post('/save_from', playerCtrl.saveFrom);
+
 playerRouter.get('/add_to_queue', playerCtrl.addToQueue);
 
 export default playerRouter;

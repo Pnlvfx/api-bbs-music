@@ -2,6 +2,9 @@ import { Schema, model } from "mongoose";
 import { PlayerProps } from "./types/player";
 
 const PlayerSchema = new Schema<PlayerProps>({
+  recently_played: {
+    type: [Schema.Types.ObjectId]
+  },
   previous: {
     type: [Schema.Types.ObjectId],
   },

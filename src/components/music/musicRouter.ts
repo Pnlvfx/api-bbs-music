@@ -3,7 +3,7 @@ import musicCtrl from "./musicCtrl";
 
 const musicRouter = express.Router();
 
-musicRouter.get('/get_next', musicCtrl.addNextTrack);
+musicRouter.get('/get_next', musicCtrl.getNextTrack);
 
 musicRouter.post('/download', musicCtrl.downloadMusic);
 

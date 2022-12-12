@@ -14,10 +14,15 @@ const headers = {
     'Content-Type': 'application/json'
 }
 
+const refreshHeaders = (access_token: string) => {
+    spotify.headers.Authorization = `Bearer ${access_token}`
+}
+
 const spotify = {
     auth_url: AUTH_URL,
     base_url: BASE_URL,
     headers,
+    refreshHeaders,
 }
 
 export default spotify;
