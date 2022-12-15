@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getUserFromToken } from "../components/user/user-hooks";
 import { UserRequest } from "../@types/express";
-import { catchErrorCtrl } from "../lib/common"
+import { catchErrorCtrl, performanceEnd } from "../lib/common"
 
 const auth = async (userRequest: Request, res: Response, next: NextFunction) => {
     try {
@@ -10,7 +10,7 @@ const auth = async (userRequest: Request, res: Response, next: NextFunction) => 
         if (!token) return res.status(401).json({msg: 'This API require user authentication'});
         const user = await getUserFromToken(token);
         if (!user) {
-            res.clearCookie('token',{
+            res.clearCookie('token', {
                 httpOnly: true,
             }).json(null);
         } else {

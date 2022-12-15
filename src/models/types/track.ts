@@ -21,7 +21,7 @@ export interface TrackProps extends Document {
   duration: number;
   title: string;
   artist: string;
-  artistSpId: string;
+  artistSpID: string;
   album?: string;
   description?: string;
   genre: string[]

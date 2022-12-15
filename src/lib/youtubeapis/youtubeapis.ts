@@ -8,14 +8,12 @@ import puppeteer from "puppeteer";
 import spotifyapis from "../spotifyapis/spotifyapis";
 
 const youtubeapis = {
-  downloadTrack: async (artist: string, track: string, spID: string) => {
+  downloadTrack: async (spID: string) => {
     try {
       return new Promise<TrackProps>(async (resolve, rejects) => {
         const trackInfo = await spotifyapis.track.getTrack(spID);
-        if (trackInfo.name === trackInfo.album.name) {
-          track = track + '+' + 'song';
-        }
-        const text = encodeURI(`${artist}+${track}`).replaceAll('%20', '+');
+        const title = trackInfo.name === trackInfo.album.name ? trackInfo.name + ' ' + 'song' : trackInfo.name;
+        const text = encodeURI(`${trackInfo.artists[0].name}+${title}`).replaceAll("%20", "+");
         const browser = await puppeteer.launch({
           args: ["--no-sandbox", "--disabled-setupid-sandbox"],
         });
@@ -26,7 +24,6 @@ const youtubeapis = {
         const searchUrl = `https://www.youtube.com/results?search_query=${text}`;
         await page.goto(searchUrl);
         await page.waitForSelector("#video-title");
-        //await page.waitForNetworkIdle();
         const url = await page.evaluate(() => {
           const doc = document.querySelector(
             "#video-title"
@@ -51,11 +48,12 @@ const youtubeapis = {
         YD.on("finished", async (err, data: YDdownload) => {
           if (err) return rejects(err);
           try {
+            trackInfo.name.replace('+song', '');
             data.info = trackInfo;
             const savedTrack = await music.saveMusic(data);
             return resolve(savedTrack);
           } catch (err) {
-            console.log(err, 'from youtubeapis track: ', data.title);
+            console.log(err, "from youtubeapis track: ", data.title);
             throw rejects(err);
           }
         });

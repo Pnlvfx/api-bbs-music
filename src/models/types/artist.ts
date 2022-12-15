@@ -1,9 +1,11 @@
 import { Document } from "mongoose";
-import { TrackProps } from "./track";
 
 export interface ArtistProps extends Document {
-    name: string
-    albums: []
-    tracks: TrackProps[]
-    thumbnail: string
+  followers: { total: number };
+  genres: string[];
+  spID: string;
+  images: SpotifyImageProps[];
+  name: string;
+  popularity: number;
+  type: string;
 }

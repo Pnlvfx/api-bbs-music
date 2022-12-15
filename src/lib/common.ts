@@ -26,8 +26,8 @@ export const catchErrorCtrl = (err: unknown, res: Response) => {
     }
 }
 
-export const performanceEnd = (start: number) => {
+export const performanceEnd = (start: number, api: string) => {
     const end = performance.now();
-    const time = `Request took ${end - start} milliseconds`
+    const time = `api: ${api} took ${end - start} milliseconds`
     return console.log(time)
 }

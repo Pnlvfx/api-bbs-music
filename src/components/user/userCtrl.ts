@@ -5,6 +5,7 @@ import { getUserFromToken } from "./user-hooks";
 import { UserRequest } from "../../@types/express";
 import playerapis from "../../lib/playerapis/playerapis";
 import { usePlayer } from "../../lib/playerapis/hooks/playerHooks";
+import Artist from "../../models/Artist";
 
 const userCtrl = {
   user: async (req: Request, res: Response) => {
@@ -21,15 +22,16 @@ const userCtrl = {
           .json(undefined);
       } else {
         const player = await usePlayer(user.player);
-        // if (player.next.length <= 50) {
-        //   initialQueue.
-        // }
         const last_played = await Track.findById(player.current.track);
         const liked_tracks = await Track.find({_id: user.liked_tracks});
         liked_tracks.sort((a, b) => {
           return user.liked_tracks.indexOf(a._id) - user.liked_tracks.indexOf(b._id)
         })
-        res.status(200).json({
+        const liked_artists = await Artist.find({_id: user.liked_artists});
+        liked_artists.sort((a, b) => {
+          return user.liked_artists.indexOf(a._id) - user.liked_artists.indexOf(b._id)
+        })
+        const session = {
           username: user.username,
           avatar: user.avatar,
           role: user.role,
@@ -40,8 +42,10 @@ const userCtrl = {
               from: player.current.from,
             }
           },
-          liked_artists: user.liked_artists,
-        });
+          liked_artists,
+        }
+        console.log({session})
+        res.status(200).json(session);
       }
     } catch (err) {
       catchErrorCtrl(err, res);
@@ -89,6 +93,7 @@ const userCtrl = {
       const req = userRequest as UserRequest;
       const { user } = req;
       const queue = playerapis.create_queue(user);
+      return;
       res.status(200).json("Started");
     } catch (err) {
       catchErrorCtrl(err, res);

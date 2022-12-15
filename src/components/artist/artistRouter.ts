@@ -7,8 +7,10 @@ artistRouter.get('/similar', artistCtrl.getSimilar);
 
 artistRouter.post('/liked', artistCtrl.liked_artist);
 
-artistRouter.get('/:spId/top-tracks', artistCtrl.getTopTrack);
+artistRouter.get('/:spID/top-tracks', artistCtrl.getTopTrack);
 
-artistRouter.get('/:spId', artistCtrl.getArtist);
+artistRouter.get('/:spID/new', artistCtrl.createNew);
+
+artistRouter.get('/:spID', artistCtrl.getArtist);
 
 export default artistRouter;

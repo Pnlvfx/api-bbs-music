@@ -1,24 +1,26 @@
+import { ArtistProps } from "../../../models/types/artist";
 import { catchError } from "../../../lib/common";
 import spotifyapis from "../../../lib/spotifyapis/spotifyapis";
-import { IUser } from "../../../models/types/user";
-import { LikedArtistProps } from "../../../models/types/user";
+import artist from "../../../components/artist/artist-hooks/artist";
+import Artist from "../../../models/Artist";
 
-export const getTenArtists = async (user: IUser) => {
+export const getTenArtists = async (likedArtists: ArtistProps[]) => {
   try {
-    const similarArtists: LikedArtistProps[] = user.liked_artists;
+    const similarArtists = likedArtists;
     await Promise.all(
-      user.liked_artists.map(async (artist) => {
-        const similars = await spotifyapis.artist.getRelatedArtist(artist.spID);
+      likedArtists.map(async (liked_artist) => {
+        const similars = await spotifyapis.artist.getRelatedArtist(
+          liked_artist.spID
+        );
         similars.sort((a, b) => {
           return b.popularity - a.popularity;
         });
-        similars.map((similar) => {
+        similars.map(async (similar) => {
           const exist = similarArtists.find((_) => _.spID === similar.id);
           if (exist) return;
-          similarArtists.push({
-            name: similar.name,
-            spID: similar.id,
-          });
+          let _artist = await Artist.findOne({ spID: similar.id });
+          if (!_artist) _artist = await artist.createArtist(similar);
+          similarArtists.push(_artist);
         });
       })
     );

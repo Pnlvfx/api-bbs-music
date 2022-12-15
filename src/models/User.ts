@@ -33,7 +33,7 @@ const UserSchema = new Schema<IUser>(
     },
     player: {
       type: Schema.Types.ObjectId,
-      required: true
+      required: true,
     },
     liked_tracks: {
       type: [Schema.Types.ObjectId],
@@ -43,12 +43,7 @@ const UserSchema = new Schema<IUser>(
       validate: [arrayLimit, "Last search execeds the limit of 30"],
     },
     liked_artists: {
-      type: [
-        {
-          name: String,
-          spID: String
-        }
-      ],
+      type: [Schema.Types.ObjectId],
       unique: true,
     },
     country: {

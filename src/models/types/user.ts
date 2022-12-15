@@ -9,16 +9,11 @@ export interface IUser extends Document {
   player: Types.ObjectId;
   liked_tracks: Types.ObjectId[];
   last_search: Types.ObjectId[];
-  liked_artists: LikedArtistProps[]
+  liked_artists: Types.ObjectId[];
   country: string;
   countryCode: string;
   city: string;
   region: string;
   lat: string;
   lon: string;
-}
-
-export type LikedArtistProps = {
-  name: string
-  spID: string
 }

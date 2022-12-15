@@ -1,7 +1,7 @@
 interface SpotifyTrackProps {
     album: SpotifyAlbumProps
-    artists: ArtistProps[]
-    available_markets: [string]
+    artists: SpArtistProps[]
+    available_markets: string[]
     disc_number: number
     duration_ms: number
     explicit: boolean
@@ -22,7 +22,7 @@ interface SpotifyTrackProps {
     uri: string
 }
 
-type ArtistProps = {
+type SpArtistProps = {
     external_urls: {
         spotify: string
       },

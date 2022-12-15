@@ -1,6 +1,6 @@
 interface SpotifyAlbumProps {
     album_type: string
-    artists: ArtistProps[]
+    artists: SpArtistProps[]
     available_markets: [string]
     external_urls: {
         spotify: string

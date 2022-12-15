@@ -1,8 +1,9 @@
-import { IUser, LikedArtistProps } from "../../../models/types/user";
+import { IUser } from "../../../models/types/user";
 import { catchError } from "../../../lib/common";
 import spotifyapis from "../../../lib/spotifyapis/spotifyapis";
+import { ArtistProps } from "../../../models/types/artist";
 
-export const getHundredTracks = async (tenArtists: LikedArtistProps[], user: IUser) => {
+export const getHundredTracks = async (tenArtists: ArtistProps[], user: IUser) => {
   try {
     let tracks: SpotifyTrackProps[] = [];
     await Promise.all(

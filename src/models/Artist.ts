@@ -1,22 +1,19 @@
-import {Schema, model} from "mongoose";
+import {Schema, model} from "mongoose"; 
 import { ArtistProps } from "./types/artist";
 
 const ArtistSchema = new Schema<ArtistProps>({
-    name: {
+    followers: {
+        total: Number
+    },
+    genres: [String],
+    spID: {
         type: String,
-        required: true
+        unique: true
     },
-    albums: {
-
-    },
-    tracks: {
-        
-    },
-    thumbnail: {
-        type: String
-    }
-}, {
-    timestamps: true
+    images: [],
+    name: String,
+    popularity: Number,
+    type: String
 });
 const Artist = model('Artist', ArtistSchema);
 

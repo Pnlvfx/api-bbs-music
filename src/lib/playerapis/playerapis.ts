@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import Artist from "../../models/Artist";
 import { PlayerProps } from "../../models/types/player";
 import { IUser } from "../../models/types/user";
 import telegramapis from "../telegramapis/telegramapis";
@@ -10,9 +10,13 @@ const playerapis = {
   create_queue: async (user: IUser) => {
     try {
       const player = await usePlayer(user.player);
-      const tenArtists = await initialQueue.getTenArtists(user);
+      const likedArtists = await Artist.find({_id: user.liked_artists});
+      const tenArtists = await initialQueue.getTenArtists(likedArtists);
       const tracks = await initialQueue.getHundredTracks(tenArtists, user);
-      console.log({artists: tenArtists.length, track: tracks.length}, 'started');
+      console.log(
+        { artists: tenArtists.length, track: tracks.length },
+        "started"
+      );
       let index = 0;
 
       const timer = setInterval(async () => {
@@ -25,19 +29,18 @@ const playerapis = {
           }
           const track = tracks[index];
           index += 1;
-          const savedTrack = await youtubeapis.downloadTrack(
-            track.artists[0].name,
-            track.name,
-            track.id,
-          );
+          const savedTrack = await youtubeapis.downloadTrack(track.id);
           if (player.next.find((next) => next === savedTrack._id)) return;
           player.next.push(savedTrack._id);
           playerapis.shuffleArray(player.next);
           await player.save();
-          telegramapis.sendLog(`${savedTrack.title}, saved added to initialQueue`)
+          telegramapis.sendLog(
+            `${savedTrack.title}, saved added to initialQueue`
+          );
         } catch (err) {
-          telegramapis.sendLog(`error inside interval`)
+          telegramapis.sendLog(`error inside interval`);
           console.log(err);
+          clearInterval(timer);
         }
       }, 60000);
     } catch (err) {
@@ -54,13 +57,14 @@ const playerapis = {
     }
   },
   saveToRecentlyPlayed: (player: PlayerProps) => {
-    const exist = player.recently_played.find((item) => item.equals(player.current.track));
+    const exist = player.recently_played.length > 0 ? player.recently_played.find((item) =>
+      item.equals(player.current.track)
+    ) : false;
     if (exist) {
-      
     } else {
       player.recently_played.push(player.current.track);
     }
-  }
+  },
 };
 
 export default playerapis;

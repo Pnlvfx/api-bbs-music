@@ -17,7 +17,7 @@ const createTrack = async (song: YDdownload) => {
       duration,
       title: song.info.name,
       artist: song.info.artists[0].name,
-      artistSpId: song.info.artists[0].id,
+      artistSpID: song.info.artists[0].id,
       album: song.info?.album.name,
       description: "",
       genre: artist.genres,

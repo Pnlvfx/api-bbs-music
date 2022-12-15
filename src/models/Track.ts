@@ -31,7 +31,7 @@ const TrackSchema = new Schema<TrackProps>({
         type: String,
         required: true
     },
-    artistSpId: {
+    artistSpID: {
         type: String,
     },
     album: {
