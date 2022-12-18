@@ -93,7 +93,6 @@ const userCtrl = {
       const req = userRequest as UserRequest;
       const { user } = req;
       const queue = playerapis.create_queue(user);
-      return;
       res.status(200).json("Started");
     } catch (err) {
       catchErrorCtrl(err, res);

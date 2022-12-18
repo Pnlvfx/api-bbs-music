@@ -12,6 +12,7 @@ import searchRouter from './components/search/searchRouter';
 import artistRouter from './components/artist/artistRouter';
 import spotifyToken from './lib/spotifyapis/spotifyToken';
 import analyticsRouter from './components/analytics/analyticsRouter';
+import trackMiddleware from './middleware/track-mid';
 
 const app = express();
 
@@ -53,6 +54,6 @@ app.use('/artist', artistRouter);
 
 app.use('/music', musicRouter);
 
-app.use('/music', express.static(path));
+app.use(trackMiddleware).use('/music', express.static(path));
 
 app.listen(4000);

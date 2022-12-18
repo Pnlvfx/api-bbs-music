@@ -48,7 +48,6 @@ const spotifyapis = {
     track,
     getRecommendations: async (seed_artists: string, seed_genres: string, seed_tracks: string, market: string) => {
         try {
-            console.log({seed_artists, seed_genres, seed_tracks, market})
             const url = `${spotify.base_url}/recommendations?` + new URLSearchParams({
                 seed_artists,
                 seed_genres,

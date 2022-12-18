@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getUserFromToken } from "../components/user/user-hooks";
 import { UserRequest } from "../@types/express";
-import { catchErrorCtrl, performanceEnd } from "../lib/common"
+import { catchErrorCtrl } from "../lib/common"
 
 const auth = async (userRequest: Request, res: Response, next: NextFunction) => {
     try {

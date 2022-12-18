@@ -14,7 +14,7 @@ const playerCtrl = {
             if (!check) return res.status(400).json({msg: 'Invalid current song!'});
             const {user} = req;
             const player = await usePlayer(user.player);
-            playerapis.saveToRecentlyPlayed(player);
+            playerapis.saveToRecentlyPlayed(player, check._id);
             player.current.track = check._id;
             await player.save();
             console.log(check.title, 'is the current track')

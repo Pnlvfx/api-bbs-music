@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import Artist from "../../models/Artist";
 import { PlayerProps } from "../../models/types/player";
 import { IUser } from "../../models/types/user";
@@ -56,13 +57,13 @@ const playerapis = {
       array[j] = temp;
     }
   },
-  saveToRecentlyPlayed: (player: PlayerProps) => {
+  saveToRecentlyPlayed: (player: PlayerProps, currentID: Types.ObjectId) => {
     const exist = player.recently_played.length > 0 ? player.recently_played.find((item) =>
-      item.equals(player.current.track)
+      item.equals(currentID)
     ) : false;
     if (exist) {
     } else {
-      player.recently_played.push(player.current.track);
+      player.recently_played.push(currentID);
     }
   },
 };

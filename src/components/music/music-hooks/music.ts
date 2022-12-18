@@ -22,7 +22,7 @@ const createTrack = async (song: YDdownload) => {
       description: "",
       genre: artist.genres,
       date: song.info.album.release_date,
-      artwork: song.info.album.images[0].url,
+      artwork: song.info.album.images[song.info.album.images.length - 1].url,
       file: song.file,
       spID: song.info.id,
       is_saved: true,
