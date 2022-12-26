@@ -43,6 +43,9 @@ const TrackSchema = new Schema<TrackProps>({
     genre: {
         type: [String],
     },
+    popularity: {
+        type: Number,
+    },
     date: {
         type: String,
     },
@@ -60,7 +63,6 @@ const TrackSchema = new Schema<TrackProps>({
     },
     spID: {
         type: String,
-        required: true
     }
 }, {
     timestamps: true

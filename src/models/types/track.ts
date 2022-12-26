@@ -9,6 +9,9 @@ export interface YDdownload {
   artist: string;
   title: string;
   thumbnail: string;
+}
+
+export interface YDdownloadExtended extends YDdownload {
   info: SpotifyTrackProps
 }
 
@@ -25,9 +28,9 @@ export interface TrackProps extends Document {
   album?: string;
   description?: string;
   genre: string[]
+  popularity: number;
   date?: string;
   artwork: string;
   file: string;
-  liked: boolean;
   is_saved: boolean;
 }

@@ -44,6 +44,20 @@ const artist = {
         } catch (err) {
             throw catchError(err);
         }
+    },
+    getArtistAlbums: async (id: string, market: string) => {
+        try {
+            const url = `${spotify.base_url}/artists/${id}/albums?market=${market}`;
+            const res = await fetch(url, {
+                method: 'get',
+                headers: spotify.headers,
+            });
+            const data = await res.json();
+            if (!res.ok) await spotifyError(res.status, data);
+            return data.items as SpotifyAlbumProps[];
+        } catch (err) {
+            throw catchError(err);
+        }
     }
 }
 

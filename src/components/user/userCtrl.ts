@@ -6,6 +6,7 @@ import { UserRequest } from "../../@types/express";
 import playerapis from "../../lib/playerapis/playerapis";
 import { usePlayer } from "../../lib/playerapis/hooks/playerHooks";
 import Artist from "../../models/Artist";
+import { Types } from "mongoose";
 
 const userCtrl = {
   user: async (req: Request, res: Response) => {
@@ -44,7 +45,6 @@ const userCtrl = {
           },
           liked_artists,
         }
-        console.log({session})
         res.status(200).json(session);
       }
     } catch (err) {
@@ -55,11 +55,13 @@ const userCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { user } = req;
-      const tracks = await Track.find({_id: user.last_search});
-      tracks.sort((a, b) => {
-        return user.last_search.indexOf(a._id) - user.last_search.indexOf(b._id)
+      const tracks = await Track.find({_id: user.last_search.tracks});
+      const artists = await Artist.find({_id: user.last_search.artists});
+      const response = [...tracks, ...artists];
+      response.sort((a, b) => {
+        return user.last_search.tracks.indexOf(a._id) - user.last_search.tracks.indexOf(b._id)
       })
-      res.status(200).json({tracks: {items: tracks}});
+      res.status(200).json(response);
     } catch (err) {
       catchErrorCtrl(err, res);
     }
@@ -67,21 +69,22 @@ const userCtrl = {
   saveLastSearch: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
-      const { ids } = req.body;
+      const { ids }: {ids: Types.ObjectId[]} = req.body;
       if (!ids) return res.status(400).json({ msg: "Missing ids body params!" });
       const { user } = req;
-      user.last_search = ids;
+      user.last_search.tracks = ids;
       await user.save();
       res.status(200).json(true);
     } catch (err) {
-      throw catchErrorCtrl(err, res);
+      catchErrorCtrl(err, res);
     }
   },
   clearLastSearch: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
       const { user } = req;
-      user.last_search = []
+      user.last_search.tracks = [];
+      user.last_search.artists = [];
       await user.save();
       res.status(200).json(true);
     } catch (err) {

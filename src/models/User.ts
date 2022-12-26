@@ -1,10 +1,6 @@
 import { Schema, model } from "mongoose";
 import { IUser } from "./types/user";
 
-const arrayLimit = (val: []) => {
-  return val.length <= 35;
-};
-
 const UserSchema = new Schema<IUser>(
   {
     email: {
@@ -39,12 +35,11 @@ const UserSchema = new Schema<IUser>(
       type: [Schema.Types.ObjectId],
     },
     last_search: {
-      type: [Schema.Types.ObjectId],
-      validate: [arrayLimit, "Last search execeds the limit of 30"],
+      tracks: [Schema.Types.ObjectId],
+      artists: [Schema.Types.ObjectId]
     },
     liked_artists: {
       type: [Schema.Types.ObjectId],
-      unique: true,
     },
     country: {
       type: String,

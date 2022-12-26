@@ -1,11 +1,13 @@
 import { catchError } from "../common";
 import coraline from "../../coraline/coraline";
 import Track from "../../models/Track";
-import { TrackProps, YDdownload } from "../../models/types/track";
+import { TrackProps, YDdownload, YDdownloadExtended } from "../../models/types/track";
 import music from "../../components/music/music-hooks/music";
 import YoutubeMp3Downloader from "youtube-mp3-downloader";
 import puppeteer from "puppeteer";
 import spotifyapis from "../spotifyapis/spotifyapis";
+import getAudioDurationInSeconds from "get-audio-duration";
+import config from '../../config/config';
 
 const youtubeapis = {
   downloadTrack: async (spID: string) => {
@@ -45,7 +47,7 @@ const youtubeapis = {
           allowWebm: false,
         });
         YD.download(id, `${id}.mp3`);
-        YD.on("finished", async (err, data: YDdownload) => {
+        YD.on("finished", async (err, data: YDdownloadExtended) => {
           if (err) return rejects(err);
           try {
             trackInfo.name.replace('+song', '');
@@ -68,6 +70,71 @@ const youtubeapis = {
       throw catchError(err);
     }
   },
+  getIDfromUrl: (url: string) => {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[7].length == 11) {
+      return match[7]
+    } else {
+      return null;
+    }
+  },
+  downloadFromId: (id: string) => {
+    try {
+      return new Promise(async (resolve, rejects) => {
+        const existing = await Track.findOne({ id });
+        if (existing) return resolve(existing);
+        const path = coraline.use("music");
+        const YD = new YoutubeMp3Downloader({
+          outputPath: path,
+          youtubeVideoQuality: "highestaudio",
+          queueParallelism: 2,
+          progressTimeout: 2000,
+          allowWebm: false,
+        });
+        YD.download(id, `${id}.mp3`);
+        YD.on("finished", async (err, data: YDdownload) => {
+          if (err) return rejects(err);
+          try {
+            const duration = await getAudioDurationInSeconds(data.file);
+            const url = `${config.SERVER_URL}/music/${data.videoId}.mp3`;
+            const track = new Track({
+              id: data.videoId,
+              url,
+              type: "default",
+              content_type: "audio/mp3",
+              duration,
+              title: data.title,
+              artist: data.artist,
+              artistSpID: undefined,
+              album: '',
+              description: "",
+              genre: [],
+              popularity: undefined,
+              date: undefined,
+              artwork: data.thumbnail,
+              file: data.file,
+              spID: undefined,
+              is_saved: true,
+            });
+            await track.save();
+            return resolve(track);
+          } catch (err) {
+            console.log(err, "from youtubeapis.downloadFromId track: ", data.title);
+            throw rejects(err);
+          }
+        });
+        YD.on("error", (error) => {
+          return rejects(error);
+        });
+        YD.on("progress", (progress) => {
+          progress = progress;
+        });
+      });
+    } catch (err) {
+      throw catchError(err);
+    }
+  }
 };
 
 export default youtubeapis;

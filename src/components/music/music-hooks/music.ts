@@ -1,10 +1,10 @@
 import { catchError } from "../../../lib/common";
 import config from "../../../config/config";
-import { YDdownload } from "../../../models/types/track";
+import { YDdownload, YDdownloadExtended } from "../../../models/types/track";
 import Track from "../../../models/Track";
 import spotifyapis from "../../../lib/spotifyapis/spotifyapis";
 
-const createTrack = async (song: YDdownload) => {
+const createTrack = async (song: YDdownloadExtended) => {
   try {
     const url = `${config.SERVER_URL}/music/${song.videoId}.mp3`;
     const duration = song.info.duration_ms;
@@ -21,6 +21,7 @@ const createTrack = async (song: YDdownload) => {
       album: song.info?.album.name,
       description: "",
       genre: artist.genres,
+      popularity: song.info.popularity,
       date: song.info.album.release_date,
       artwork: song.info.album.images[song.info.album.images.length - 1].url,
       file: song.file,
@@ -35,7 +36,7 @@ const createTrack = async (song: YDdownload) => {
 };
 
 const music = {
-  saveMusic: async (song: YDdownload) => {
+  saveMusic: async (song: YDdownloadExtended) => {
     try {
       const track = await createTrack(song);
       return track;

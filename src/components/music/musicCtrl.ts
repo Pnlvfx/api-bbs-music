@@ -43,11 +43,24 @@ const musicCtrl = {
     try {
       const req = userRequest as UserRequest;
       const { spID } = req.body;
-      if (!spID) return res.status(400).json({ msg: "Missing required body params!" });
+      if (!spID)
+        return res.status(400).json({ msg: "Missing required body params!" });
       const savedTrack = await youtubeapis.downloadTrack(spID);
       res.status(201).json(savedTrack);
     } catch (err) {
       console.log(err, "downloadMusic catch");
+      catchErrorCtrl(err, res);
+    }
+  },
+  downloadFromYoutube: async (userRequest: Request, res: Response) => {
+    try {
+      const req = userRequest as UserRequest;
+      const { url }: { url: string } = req.body;
+      const id = youtubeapis.getIDfromUrl(url);
+      if (!id) return res.status(400).json({ msg: "Invalid youtube URL!" });
+      const savedTrack = await youtubeapis.downloadFromId(id);
+      res.status(201).json(savedTrack);
+    } catch (err) {
       catchErrorCtrl(err, res);
     }
   },

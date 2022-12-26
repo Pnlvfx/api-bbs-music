@@ -8,7 +8,10 @@ export interface IUser extends Document {
   avatar: string;
   player: Types.ObjectId;
   liked_tracks: Types.ObjectId[];
-  last_search: Types.ObjectId[];
+  last_search: {
+    tracks: Types.ObjectId[];
+    artists: Types.ObjectId[];
+  }
   liked_artists: Types.ObjectId[];
   country: string;
   countryCode: string;

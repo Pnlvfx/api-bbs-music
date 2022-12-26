@@ -18,7 +18,7 @@ const auth = async (userRequest: Request, res: Response, next: NextFunction) => 
             next();
         };
     } catch (err) {
-        throw catchErrorCtrl(err, res);
+        catchErrorCtrl(err, res);
     }
 }
 

@@ -1,11 +1,8 @@
-import { Types } from "mongoose";
 import { TrackProps } from "../../../models/types/track";
 
 export interface SpotifySearchProps {
     artists: SearchResponse<SpotifyArtistProps[]>
-    tracks: SearchResponse<SpotifyTrackProps[] | TrackProps[] & {
-        _id: Types.ObjectId
-    }>
+    tracks: SearchResponse<(SpotifyTrackProps | TrackProps)[]>
 }
 
 type SearchResponse<Items> = {

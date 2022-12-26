@@ -22,14 +22,14 @@ const artistCtrl = {
       const spArtists = await spotifyapis.artist.getRelatedArtist(
         first.artists.items[0].id
       );
-      let artists: ArtistProps[] = []
+      let artists: ArtistProps[] = [];
       await Promise.all(
         spArtists.map(async (spArtist) => {
-          let _artist = await Artist.findOne({spID: spArtist.id});
+          let _artist = await Artist.findOne({ spID: spArtist.id });
           if (!_artist) _artist = await artist.createArtist(spArtist);
           artists.push(_artist);
         })
-      )
+      );
       res.status(200).json(artists);
     } catch (err) {
       catchErrorCtrl(err, res);
@@ -45,7 +45,7 @@ const artistCtrl = {
           if (user.liked_artists.find((_) => _.equals(liked_artist._id))) return;
           user.liked_artists.push(liked_artist._id);
         })
-      )
+      );
       await user.save();
       res.status(200).json(true);
     } catch (err) {
@@ -57,15 +57,23 @@ const artistCtrl = {
       const req = userRequest as UserRequest;
       const { spID } = req.params;
       const { user } = req;
-      if (!spID)
-        return res.status(400).json({ msg: "Missing required params: spID" });
-      const artist = await spotifyapis.artist.getArtist(spID.toString());
+      if (!spID) return res.status(400).json({ msg: "Missing required params: spID" });
+      let _artist = await Artist.findOne({spID});
+      if (!_artist) {
+        const spArtist = await spotifyapis.artist.getArtist(spID.toString());
+        _artist = await artist.createArtist(spArtist);
+      }
       const topTracks = await spotifyapis.artist.getTopTrack(
         spID,
         user.countryCode
       );
       topTracks.length = 5;
-      res.status(200).json({ artist, topTracks });
+      
+      const albums = await spotifyapis.artist.getArtistAlbums(
+        spID,
+        user.countryCode
+      );
+      res.status(200).json({ artist: _artist, topTracks, albums });
     } catch (err) {
       catchErrorCtrl(err, res);
     }
@@ -89,10 +97,10 @@ const artistCtrl = {
   createNew: async (userRequest: Request, res: Response) => {
     try {
       const req = userRequest as UserRequest;
-      const {spID} = req.params;
+      const { spID } = req.params;
       if (!spID)
         return res.status(400).json({ msg: "Missing required params: spID" });
-      let newArtist = await Artist.findOne({spID});
+      let newArtist = await Artist.findOne({ spID });
       if (!newArtist) {
         const spArtist = await spotifyapis.artist.getArtist(spID);
         newArtist = await artist.createArtist(spArtist);
@@ -101,7 +109,7 @@ const artistCtrl = {
     } catch (err) {
       catchErrorCtrl(err, res);
     }
-  }
+  },
 };
 
 export default artistCtrl;

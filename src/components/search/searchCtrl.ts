@@ -22,7 +22,7 @@ const searchCtrl = {
       const {user} = req;
       const { text, type, offset } = req.query;
       const limit = req.query.limit ? req.query.limit : 20;
-      if (!text || !type) return res.status(400).json({ msg: 'Missing required params: "text || type"' });
+      if (!text || !type) return res.status(400).json({ msg: 'Missing required params: "text or type"' });
       const data = await spotifyapis.search(text.toString(), type.toString(), user.countryCode, Number(limit.toString()), Number(offset?.toString()));
       if (type.toString().includes('track')) {
         await getDBtracks(data);
@@ -32,7 +32,7 @@ const searchCtrl = {
     } catch (err) {
       catchErrorCtrl(err, res);
     }
-  },
+  }
 };
 
 export default searchCtrl;
